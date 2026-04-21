@@ -1,0 +1,999 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>XMem — Drop-in memory that reasons. For AI agent builders.</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..800;1,6..72,300..800&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          plum: { 50:'#f5f1fa', 100:'#ebe3f6', 200:'#d4c0ed', 300:'#b596de', 400:'#946ccb', 500:'#7a4fbb', 600:'#6B3FA0', 700:'#573285', 800:'#482c6b', 900:'#3c2757' },
+          paper: { 50:'#fbfaf7', 100:'#f5f2eb', 200:'#ebe6d9' },
+          ink: { 900:'#1a1717', 800:'#2b2626', 700:'#3d3737', 600:'#554e4e', 500:'#7a7272', 400:'#a39b9b', 300:'#cfc8c8' },
+          amber: '#d98f3e', moss: '#6b8f4e', rose: '#b85c6f', slate: '#5a6b7a',
+          code: { bg: '#1a1625', line: '#2a2238', border: '#352b47' }
+        },
+        fontFamily: {
+          serif: ['Newsreader', 'ui-serif', 'Georgia', 'serif'],
+          sans: ['Manrope', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+        },
+      }
+    }
+  }
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Manrope', sans-serif;
+    background: #fbfaf7;
+    color: #1a1717;
+    background-image:
+      radial-gradient(rgba(107,63,160,0.025) 1px, transparent 1px),
+      radial-gradient(rgba(107,63,160,0.02) 1px, transparent 1px);
+    background-size: 32px 32px, 16px 16px;
+    background-position: 0 0, 8px 8px;
+  }
+  .font-serif { font-family: 'Newsreader', serif; font-feature-settings: "ss01"; letter-spacing: -0.01em; }
+  .headline { font-family: 'Newsreader', serif; letter-spacing: -0.025em; line-height: 1.02; font-weight: 500; }
+  .eyebrow { font-family: 'Manrope', sans-serif; font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; font-size: 0.72rem; color: #6B3FA0; }
+  .pullquote { font-family: 'Newsreader', serif; font-style: italic; font-weight: 400; }
+  .btn-primary {
+    background: #6B3FA0; color: white; font-weight: 600;
+    padding: 0.85rem 1.5rem; border-radius: 0.6rem;
+    transition: all 0.18s ease; display: inline-flex; align-items: center; gap: 0.5rem;
+    box-shadow: 0 1px 2px rgba(72,44,107,0.15), 0 4px 12px rgba(107,63,160,0.18);
+  }
+  .btn-primary:hover { background: #573285; transform: translateY(-1px); box-shadow: 0 2px 4px rgba(72,44,107,0.2), 0 8px 20px rgba(107,63,160,0.22); }
+  .btn-secondary {
+    background: white; color: #1a1717; font-weight: 600;
+    padding: 0.85rem 1.5rem; border-radius: 0.6rem;
+    border: 1.5px solid #d4c0ed;
+    transition: all 0.18s ease; display: inline-flex; align-items: center; gap: 0.5rem;
+  }
+  .btn-secondary:hover { border-color: #6B3FA0; color: #6B3FA0; }
+  .btn-dark {
+    background: #1a1625; color: white; font-weight: 600;
+    padding: 0.85rem 1.5rem; border-radius: 0.6rem;
+    transition: all 0.18s ease; display: inline-flex; align-items: center; gap: 0.5rem;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.88rem;
+  }
+  .btn-dark:hover { background: #2a2238; }
+  .card {
+    background: white; border: 1px solid rgba(26,23,23,0.06);
+    border-radius: 0.8rem; padding: 1.75rem;
+    transition: all 0.2s ease;
+  }
+  .card:hover { border-color: rgba(107,63,160,0.2); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(107,63,160,0.06); }
+  .gradient-band { background: linear-gradient(135deg, #3c2757 0%, #6B3FA0 65%, #946ccb 100%); }
+  .compounding-grid {
+    background-image:
+      linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  .logo-dot { display: inline-flex; width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, #946ccb 0%, #573285 100%); align-items: center; justify-content: center; color: white; font-family: 'Newsreader', serif; font-weight: 700; font-size: 1rem; }
+  .dot-separator { width: 3px; height: 3px; background: currentColor; border-radius: 999px; opacity: 0.5; display: inline-block; vertical-align: middle; margin: 0 0.6rem; }
+  details > summary { list-style: none; cursor: pointer; }
+  details > summary::-webkit-details-marker { display: none; }
+  details[open] .faq-icon { transform: rotate(45deg); }
+  .faq-icon { transition: transform 0.2s ease; }
+
+  /* Nav dropdown — Pinecone-style */
+  .nav-dropdown { display: none; position: absolute; top: 100%; left: 0; padding-top: 0.5rem; }
+  .nav-item:hover .nav-dropdown { display: block; }
+  .nav-card { background: white; border: 1px solid rgba(26,23,23,0.08); border-radius: 14px; padding: 0.5rem; width: 640px; box-shadow: 0 10px 30px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04); display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .nav-card-row { display: flex; gap: 0.9rem; align-items: flex-start; padding: 0.9rem; border-radius: 10px; transition: background 0.15s ease; }
+  .nav-card-row:hover { background: #f5f1fa; }
+  .nav-card-icon { width: 2.2rem; height: 2.2rem; border-radius: 0.55rem; background: #f5f1fa; color: #6B3FA0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.2rem; }
+  .nav-card-row:hover .nav-card-icon { background: #6B3FA0; color: white; }
+  .nav-card-title { font-weight: 700; color: #1a1717; font-size: 0.95rem; margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.4rem; }
+  .nav-card-desc { color: #554e4e; font-size: 0.82rem; line-height: 1.4; }
+  .nav-arrow { opacity: 0; transition: all 0.15s ease; }
+  .nav-card-row:hover .nav-arrow { opacity: 1; transform: translateX(2px); }
+
+  /* Code block styling */
+  .code-shell { background: #1a1625; border-radius: 0.9rem; border: 1px solid #352b47; overflow: hidden; box-shadow: 0 10px 40px rgba(60,39,87,0.25); }
+  .code-tabs { display: flex; background: #12101a; border-bottom: 1px solid #2a2238; padding: 0 0.4rem; }
+  .code-tab { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 500; color: #7a7290; padding: 0.75rem 1rem; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.15s ease; background: none; border-left: none; border-right: none; border-top: none; }
+  .code-tab:hover { color: #b9a8d8; }
+  .code-tab.active { color: #d4c0ed; border-bottom-color: #946ccb; }
+  .code-body { padding: 1.25rem 1.5rem; overflow-x: auto; }
+  .code-body pre { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: #d4c0ed; line-height: 1.65; margin: 0; }
+  .code-pane { display: none; }
+  .code-pane.active { display: block; }
+  /* syntax coloring */
+  .c-com { color: #6b6484; font-style: italic; }
+  .c-kw  { color: #c693f5; }
+  .c-str { color: #f5b66c; }
+  .c-fn  { color: #7dd3fc; }
+  .c-num { color: #b9e08b; }
+  .c-var { color: #e8e0f7; }
+  .c-mod { color: #f09bc5; }
+
+  /* benchmark bars */
+  .bench-bar { height: 36px; border-radius: 0 8px 8px 0; display: flex; align-items: center; justify-content: flex-end; padding-right: 0.85rem; color: white; font-weight: 700; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+  .bench-us { background: linear-gradient(90deg, #6B3FA0 0%, #946ccb 100%); }
+  .bench-them { background: #d4c0ed; color: #482c6b; }
+  .bench-faint { background: #ebe3f6; color: #7a7272; }
+
+  /* metric card */
+  .metric-card { background: white; border: 1px solid rgba(26,23,23,0.06); border-radius: 0.9rem; padding: 1.6rem; text-align: left; transition: all 0.2s ease; }
+  .metric-card:hover { border-color: rgba(107,63,160,0.2); box-shadow: 0 8px 24px rgba(107,63,160,0.06); }
+  .metric-num { font-family: 'Newsreader', serif; font-weight: 500; font-size: 3rem; line-height: 1; color: #6B3FA0; letter-spacing: -0.02em; }
+  .metric-label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; color: #7a7272; margin-top: 0.5rem; }
+  .metric-note { font-size: 0.82rem; color: #554e4e; margin-top: 0.75rem; line-height: 1.5; }
+
+  /* primitive card */
+  .prim-card { background: white; border: 1px solid rgba(26,23,23,0.06); border-radius: 0.8rem; padding: 1.5rem; transition: all 0.2s ease; position: relative; }
+  .prim-card:hover { border-color: rgba(107,63,160,0.25); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(107,63,160,0.08); }
+  .prim-icon { width: 2.4rem; height: 2.4rem; border-radius: 0.55rem; background: #f5f1fa; color: #6B3FA0; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.9rem; margin-bottom: 1rem; }
+  .mono-pill { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; background: #f5f2eb; color: #482c6b; padding: 0.2rem 0.55rem; border-radius: 5px; border: 1px solid rgba(72,44,107,0.12); }
+
+  /* use case card */
+  .uc-card { background: white; border: 1px solid rgba(26,23,23,0.06); border-radius: 0.8rem; padding: 1.4rem; transition: all 0.2s ease; display: flex; gap: 1rem; align-items: flex-start; }
+  .uc-card:hover { border-color: rgba(107,63,160,0.2); box-shadow: 0 8px 24px rgba(107,63,160,0.06); }
+  .uc-icon { width: 2.2rem; height: 2.2rem; border-radius: 0.55rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 700; font-size: 0.9rem; font-family: 'Newsreader', serif; }
+
+  /* pricing card */
+  .price-card { background: white; border: 1px solid rgba(26,23,23,0.08); border-radius: 1rem; padding: 2rem; transition: all 0.2s ease; display: flex; flex-direction: column; }
+  .price-card.featured { border-color: #6B3FA0; box-shadow: 0 12px 36px rgba(107,63,160,0.15); transform: translateY(-4px); position: relative; }
+  .price-card .plan-name { font-family: 'Newsreader', serif; font-size: 1.5rem; font-weight: 500; color: #1a1717; }
+  .price-card .plan-price { font-family: 'Newsreader', serif; font-size: 2.8rem; font-weight: 500; color: #1a1717; line-height: 1; letter-spacing: -0.02em; }
+
+  /* flow diagram */
+  .flow-node { background: white; border: 1px solid rgba(26,23,23,0.08); border-radius: 0.7rem; padding: 0.85rem 1.1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 500; color: #2b2626; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 2px 6px rgba(60,39,87,0.05); }
+  .flow-node.accent { background: #6B3FA0; color: white; border-color: #573285; }
+  .flow-arrow { color: #b596de; font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; }
+
+  /* terminal prompt */
+  .term { background: #1a1625; border-radius: 0.7rem; padding: 1rem 1.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #d4c0ed; border: 1px solid #352b47; }
+  .term .prompt { color: #946ccb; }
+  .term .out { color: #7a7290; }
+</style>
+</head>
+<body class="antialiased">
+
+<!-- ─────────────── NAV ─────────────── -->
+<nav class="sticky top-0 z-50 bg-paper-50/85 backdrop-blur-md border-b border-ink-900/6">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10 h-16 flex items-center justify-between">
+    <a href="index.html" class="flex items-center gap-2.5">
+      <span class="logo-dot">X</span>
+      <span class="font-serif text-xl font-medium tracking-tight text-ink-900">XTrace</span>
+    </a>
+    <div class="hidden md:flex items-center gap-8 text-sm font-medium text-ink-700">
+      <a href="index.html#research" class="hover:text-plum-600 transition">Research</a>
+
+      <div class="nav-item relative">
+        <button class="flex items-center gap-1 text-plum-600 transition py-5">Product
+          <svg class="w-3 h-3" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="nav-dropdown">
+          <div class="nav-card">
+            <a href="index.html#memory-hub" class="nav-card-row">
+              <div class="nav-card-icon">🧠</div>
+              <div>
+                <div class="nav-card-title">
+                  Memory Hub
+                  <svg class="w-3 h-3 nav-arrow" viewBox="0 0 12 12" fill="none"><path d="M4 2L8 6L4 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="nav-card-desc">A living brain for your team. Capture across every AI tool, resolve conflicts, serve to any teammate or agent.</div>
+              </div>
+            </a>
+            <a href="xmem.html" class="nav-card-row" style="background:#f5f1fa;">
+              <div class="nav-card-icon" style="background:#6B3FA0; color:white;">🔌</div>
+              <div>
+                <div class="nav-card-title">
+                  XMem
+                  <svg class="w-3 h-3 nav-arrow" viewBox="0 0 12 12" fill="none"><path d="M4 2L8 6L4 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="nav-card-desc">Memory API for agent builders. Belief revision as a drop-in SDK. 92.3% on LongMemEval.</div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <a href="#docs" class="hover:text-plum-600 transition">Docs</a>
+      <a href="index.html#resources" class="hover:text-plum-600 transition">Resources</a>
+      <a href="#pricing" class="hover:text-plum-600 transition">Pricing</a>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="#signin" class="hidden sm:inline text-sm font-medium text-ink-700 hover:text-plum-600 transition">Sign in</a>
+      <a href="#signup" class="btn-primary text-sm" style="padding: 0.55rem 1.1rem;">Get API key</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ─────────────── HERO ─────────────── -->
+<section class="relative overflow-hidden" style="background: linear-gradient(180deg, #f5f1fa 0%, #fbfaf7 75%);">
+  <div class="absolute inset-0 opacity-60" style="background-image: linear-gradient(rgba(107,63,160,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(107,63,160,0.04) 1px, transparent 1px); background-size: 48px 48px; mask-image: radial-gradient(ellipse at top, black 20%, transparent 70%);"></div>
+  <div class="relative max-w-7xl mx-auto px-6 lg:px-10 pt-20 pb-20 lg:pt-24 lg:pb-24">
+    <div class="grid lg:grid-cols-12 gap-12 items-center">
+      <div class="lg:col-span-7">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="eyebrow">XMem — memory SDK</span>
+          <span class="mono-pill">v1.0 · public beta</span>
+        </div>
+        <h1 class="headline text-5xl sm:text-6xl lg:text-7xl text-ink-900 mb-7">
+          Drop-in memory <span class="italic text-plum-700">that reasons.</span>
+        </h1>
+        <p class="text-xl text-ink-600 leading-relaxed mb-9 max-w-2xl">
+          A memory API for agent builders. Not a vector DB. Facts supersede, retract, and carry their lineage — so your agent stops contradicting itself on turn fifteen.
+        </p>
+        <div class="flex flex-wrap gap-3 mb-8">
+          <a href="#signup" class="btn-primary">
+            Get API key
+            <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none"><path d="M6 3L11 8L6 13" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a href="#docs" class="btn-dark">
+            <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none"><path d="M4 2v12M12 2v12M2 5h2M2 8h2M2 11h2M12 5h2M12 8h2M12 11h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Read docs
+          </a>
+        </div>
+        <div class="flex flex-wrap items-center gap-x-1 gap-y-2 text-xs font-medium text-ink-500 uppercase tracking-wider">
+          <span>Python · TypeScript · Go</span>
+          <span class="dot-separator"></span>
+          <span>p50 &lt; 80ms</span>
+          <span class="dot-separator"></span>
+          <span>SOC 2 Type II</span>
+        </div>
+      </div>
+
+      <div class="lg:col-span-5">
+        <div class="code-shell">
+          <div class="code-tabs">
+            <button class="code-tab active" onclick="switchTab(event,'hero-py')">python</button>
+            <button class="code-tab" onclick="switchTab(event,'hero-ts')">typescript</button>
+            <button class="code-tab" onclick="switchTab(event,'hero-go')">go</button>
+          </div>
+          <div class="code-body">
+            <div class="code-pane active" id="hero-py"><pre><span class="c-com"># Drop-in memory. Three calls.</span>
+<span class="c-kw">from</span> <span class="c-mod">xmem</span> <span class="c-kw">import</span> <span class="c-var">XMem</span>
+
+<span class="c-var">mem</span> = <span class="c-fn">XMem</span>(<span class="c-var">api_key</span>=<span class="c-str">"xm_..."</span>)
+
+<span class="c-com"># 1. write a fact (or an episode)</span>
+<span class="c-var">mem</span>.<span class="c-fn">write</span>(
+  <span class="c-var">agent_id</span>=<span class="c-str">"support-bot"</span>,
+  <span class="c-var">user_id</span>=<span class="c-str">"u_4713"</span>,
+  <span class="c-var">content</span>=<span class="c-str">"prefers email over SMS"</span>,
+  <span class="c-var">source</span>=<span class="c-str">"chat:2026-04-18"</span>,
+)
+
+<span class="c-com"># 2. recall, resolved + ranked</span>
+<span class="c-var">ctx</span> = <span class="c-var">mem</span>.<span class="c-fn">recall</span>(
+  <span class="c-var">agent_id</span>=<span class="c-str">"support-bot"</span>,
+  <span class="c-var">user_id</span>=<span class="c-str">"u_4713"</span>,
+  <span class="c-var">query</span>=<span class="c-str">"how should I reach them?"</span>,
+)
+
+<span class="c-com"># 3. inject into your LLM call</span>
+<span class="c-var">llm</span>.<span class="c-fn">complete</span>(<span class="c-var">system</span>=<span class="c-var">ctx</span>.<span class="c-var">prompt</span>, ...)</pre></div>
+            <div class="code-pane" id="hero-ts"><pre><span class="c-com">// Drop-in memory. Three calls.</span>
+<span class="c-kw">import</span> { <span class="c-var">XMem</span> } <span class="c-kw">from</span> <span class="c-str">"xmem"</span>;
+
+<span class="c-kw">const</span> <span class="c-var">mem</span> = <span class="c-kw">new</span> <span class="c-fn">XMem</span>({ <span class="c-var">apiKey</span>: <span class="c-str">"xm_..."</span> });
+
+<span class="c-com">// 1. write a fact (or an episode)</span>
+<span class="c-kw">await</span> <span class="c-var">mem</span>.<span class="c-fn">write</span>({
+  <span class="c-var">agentId</span>: <span class="c-str">"support-bot"</span>,
+  <span class="c-var">userId</span>: <span class="c-str">"u_4713"</span>,
+  <span class="c-var">content</span>: <span class="c-str">"prefers email over SMS"</span>,
+  <span class="c-var">source</span>: <span class="c-str">"chat:2026-04-18"</span>,
+});
+
+<span class="c-com">// 2. recall, resolved + ranked</span>
+<span class="c-kw">const</span> <span class="c-var">ctx</span> = <span class="c-kw">await</span> <span class="c-var">mem</span>.<span class="c-fn">recall</span>({
+  <span class="c-var">agentId</span>: <span class="c-str">"support-bot"</span>,
+  <span class="c-var">userId</span>: <span class="c-str">"u_4713"</span>,
+  <span class="c-var">query</span>: <span class="c-str">"how should I reach them?"</span>,
+});
+
+<span class="c-com">// 3. inject into your LLM call</span>
+<span class="c-kw">await</span> <span class="c-var">llm</span>.<span class="c-fn">complete</span>({ <span class="c-var">system</span>: <span class="c-var">ctx</span>.<span class="c-var">prompt</span> });</pre></div>
+            <div class="code-pane" id="hero-go"><pre><span class="c-com">// Drop-in memory. Three calls.</span>
+<span class="c-kw">import</span> <span class="c-str">"github.com/xtrace-ai/xmem-go"</span>
+
+<span class="c-var">mem</span> := <span class="c-var">xmem</span>.<span class="c-fn">New</span>(<span class="c-str">"xm_..."</span>)
+
+<span class="c-com">// 1. write a fact (or an episode)</span>
+<span class="c-var">mem</span>.<span class="c-fn">Write</span>(<span class="c-var">ctx</span>, <span class="c-var">xmem</span>.<span class="c-var">Fact</span>{
+  <span class="c-var">AgentID</span>: <span class="c-str">"support-bot"</span>,
+  <span class="c-var">UserID</span>:  <span class="c-str">"u_4713"</span>,
+  <span class="c-var">Content</span>: <span class="c-str">"prefers email over SMS"</span>,
+  <span class="c-var">Source</span>:  <span class="c-str">"chat:2026-04-18"</span>,
+})
+
+<span class="c-com">// 2. recall, resolved + ranked</span>
+<span class="c-var">out</span>, _ := <span class="c-var">mem</span>.<span class="c-fn">Recall</span>(<span class="c-var">ctx</span>, <span class="c-var">xmem</span>.<span class="c-var">Query</span>{
+  <span class="c-var">AgentID</span>: <span class="c-str">"support-bot"</span>,
+  <span class="c-var">UserID</span>:  <span class="c-str">"u_4713"</span>,
+  <span class="c-var">Text</span>:    <span class="c-str">"how should I reach them?"</span>,
+})
+
+<span class="c-com">// 3. inject into your LLM call</span>
+<span class="c-var">llm</span>.<span class="c-fn">Complete</span>(<span class="c-var">out</span>.<span class="c-var">Prompt</span>)</pre></div>
+          </div>
+        </div>
+        <div class="mt-3 text-center">
+          <span class="mono-pill">pip install xmem</span>
+          <span class="mono-pill ml-2">npm i xmem</span>
+          <span class="mono-pill ml-2">go get github.com/xtrace-ai/xmem-go</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── TRUSTED BAR ─────────────── -->
+<section class="border-y border-ink-900/6 bg-white/70">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10 py-5">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="text-xs font-medium uppercase tracking-wider text-ink-500">Used by AI agent teams building</div>
+      <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-sm font-medium text-ink-700">
+        <span>Support agents</span>
+        <span class="dot-separator"></span>
+        <span>Coding agents</span>
+        <span class="dot-separator"></span>
+        <span>Voice agents</span>
+        <span class="dot-separator"></span>
+        <span>Research agents</span>
+        <span class="dot-separator"></span>
+        <span>Companions</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── PROBLEM FOR DEVS ─────────────── -->
+<section class="py-24 lg:py-28">
+  <div class="max-w-5xl mx-auto px-6 lg:px-10">
+    <div class="eyebrow mb-4">The problem</div>
+    <h2 class="headline text-4xl sm:text-5xl lg:text-6xl text-ink-900 mb-8 max-w-4xl">
+      Your agent remembers <em class="italic text-plum-700 font-normal">everything</em>. That's the bug.
+    </h2>
+    <p class="text-lg text-ink-700 leading-relaxed mb-6 max-w-3xl">
+      Stuff the last N turns into context. Bolt on a vector DB. Ship. Six weeks later your agent confidently tells a user their plan is "Pro" when they downgraded three messages ago. You ship a patch. It breaks something else.
+    </p>
+    <p class="text-lg text-ink-700 leading-relaxed mb-10 max-w-3xl">
+      Memory for agents isn't a retrieval problem. It's a <em>belief</em> problem — which facts are still true, which got superseded, and which source you trust when they disagree.
+    </p>
+    <div class="border-l-2 border-plum-600 pl-6 py-2 max-w-3xl">
+      <p class="pullquote text-2xl sm:text-3xl text-ink-900 leading-tight">
+        A vector DB stores strings. XMem stores <em>beliefs</em> — with lineage, supersedes, and decay.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── BENCHMARKS ─────────────── -->
+<section id="benchmarks" class="py-20 lg:py-24 bg-white border-y border-ink-900/6">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="flex items-end justify-between flex-wrap gap-6 mb-12">
+      <div>
+        <div class="eyebrow mb-3">Benchmarks</div>
+        <h2 class="headline text-4xl sm:text-5xl text-ink-900 max-w-3xl">The numbers that matter in production.</h2>
+      </div>
+      <a href="#research" class="text-sm font-semibold text-plum-600 hover:text-plum-700 inline-flex items-center gap-1">Read the research paper →</a>
+    </div>
+
+    <div class="grid lg:grid-cols-4 gap-5 mb-14">
+      <div class="metric-card">
+        <div class="metric-num">92.3<span style="font-size: 1.8rem; color:#946ccb;">%</span></div>
+        <div class="metric-label">LongMemEval</div>
+        <div class="metric-note">State of the art. Zep: 85.2%. Mem0: 64.2%. OpenAI Memory: 61%.</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-num">92.3<span style="font-size: 1.8rem; color:#946ccb;">%</span></div>
+        <div class="metric-label">LOCOMO</div>
+        <div class="metric-note">Long-form conversational memory. Highest reported score on the public leaderboard.</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-num">30<span style="font-size: 1.8rem; color:#946ccb;">%</span></div>
+        <div class="metric-label">fewer tokens</div>
+        <div class="metric-note">vs. dumping chat history. Because resolved beliefs beat raw transcripts.</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-num">&lt;80<span style="font-size: 1.8rem; color:#946ccb;">ms</span></div>
+        <div class="metric-label">p50 recall latency</div>
+        <div class="metric-note">p99 &lt; 220ms. Fast enough for voice. Global edge on Enterprise.</div>
+      </div>
+    </div>
+
+    <!-- LOCOMO bars -->
+    <div class="card p-7">
+      <div class="flex items-end justify-between flex-wrap gap-4 mb-6">
+        <div>
+          <h3 class="font-serif text-2xl font-medium text-ink-900">LOCOMO — long-term conversational memory</h3>
+          <p class="text-sm text-ink-500 mt-1">Higher is better. Evaluated on the public LOCOMO suite (Snap Research). Competitor scores from published vendor papers & blogs.</p>
+        </div>
+        <span class="mono-pill">methodology →</span>
+      </div>
+      <div class="space-y-3">
+        <div class="grid grid-cols-12 items-center gap-3">
+          <div class="col-span-3 text-sm font-semibold text-ink-900 flex items-center gap-2"><span class="logo-dot" style="width:20px;height:20px;font-size:0.7rem;">X</span> XMem</div>
+          <div class="col-span-9"><div class="bench-bar bench-us" style="width: 92.3%;">92.3%</div></div>
+        </div>
+        <div class="grid grid-cols-12 items-center gap-3">
+          <div class="col-span-3 text-sm text-ink-700">Mem0 (selective)</div>
+          <div class="col-span-9"><div class="bench-bar bench-them" style="width: 91.6%;">91.6%</div></div>
+        </div>
+        <div class="grid grid-cols-12 items-center gap-3">
+          <div class="col-span-3 text-sm text-ink-700">Zep</div>
+          <div class="col-span-9"><div class="bench-bar bench-them" style="width: 75.1%;">75.1%</div></div>
+        </div>
+        <div class="grid grid-cols-12 items-center gap-3">
+          <div class="col-span-3 text-sm text-ink-700">Letta (filesystem)</div>
+          <div class="col-span-9"><div class="bench-bar bench-faint" style="width: 74.0%;">74.0%</div></div>
+        </div>
+        <div class="grid grid-cols-12 items-center gap-3">
+          <div class="col-span-3 text-sm text-ink-700">OpenAI Memory</div>
+          <div class="col-span-9"><div class="bench-bar bench-faint" style="width: 52.9%;">~52.9%</div></div>
+        </div>
+      </div>
+      <p class="text-xs text-ink-500 mt-5 italic">Notes: Mem0 score = their 2026 token-efficient pipeline (mem0.ai/research). Zep = Zep's own corrected number per their rebuttal (getzep.com). Letta = their published filesystem-only baseline. OpenAI Memory is estimated from Mem0's comparative "26% relative lift over OpenAI" figure.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── WHY NOT VECTOR DB ─────────────── -->
+<section class="py-24 lg:py-28">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="max-w-4xl">
+      <div class="eyebrow mb-3">Under the hood</div>
+      <h2 class="headline text-4xl sm:text-5xl lg:text-6xl text-ink-900 mb-6">Why not just a vector DB?</h2>
+      <p class="text-lg text-ink-700 leading-relaxed mb-12 max-w-3xl">
+        A vector DB answers <em>"what looks like this?"</em> A memory engine answers <em>"what's true right now?"</em> Those are different queries, and they need different data structures.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="card border-rose/30" style="background:#fff8f9;">
+        <div class="text-xs font-semibold uppercase tracking-wider text-rose mb-4">Vector DB + RAG</div>
+        <ul class="space-y-3 text-sm text-ink-700">
+          <li class="flex gap-3"><span class="text-rose font-bold">✕</span> Stores embeddings of strings. No notion of "true right now."</li>
+          <li class="flex gap-3"><span class="text-rose font-bold">✕</span> Contradictions coexist forever. Retrieval picks whichever scores higher.</li>
+          <li class="flex gap-3"><span class="text-rose font-bold">✕</span> No lineage. You can't answer <span class="mono-pill">why do you believe this?</span></li>
+          <li class="flex gap-3"><span class="text-rose font-bold">✕</span> No decay. A fact from Jan 2024 ranks with a fact from yesterday.</li>
+          <li class="flex gap-3"><span class="text-rose font-bold">✕</span> No identity resolution. "Lisa" and "L. Chen" are strangers.</li>
+          <li class="flex gap-3"><span class="text-rose font-bold">✕</span> You'll end up writing a belief layer on top. We already did.</li>
+        </ul>
+      </div>
+      <div class="card border-plum-200" style="background:#fafaff;">
+        <div class="text-xs font-semibold uppercase tracking-wider text-plum-600 mb-4">XMem</div>
+        <ul class="space-y-3 text-sm text-ink-700">
+          <li class="flex gap-3"><span class="text-plum-600 font-bold">✓</span> Stores <strong>facts</strong> — structured beliefs with timestamps, sources, and confidence.</li>
+          <li class="flex gap-3"><span class="text-plum-600 font-bold">✓</span> Newer facts <strong>supersede</strong> older ones. Retractions are first-class.</li>
+          <li class="flex gap-3"><span class="text-plum-600 font-bold">✓</span> Every answer carries lineage. One call returns the fact + its provenance.</li>
+          <li class="flex gap-3"><span class="text-plum-600 font-bold">✓</span> <strong>Decay curves</strong> per fact type. Preferences age differently than contracts.</li>
+          <li class="flex gap-3"><span class="text-plum-600 font-bold">✓</span> Entity resolution built in. "Lisa" = "L. Chen" = <span class="mono-pill">user:u_4713</span>.</li>
+          <li class="flex gap-3"><span class="text-plum-600 font-bold">✓</span> One SDK call. Works alongside your existing vector DB — we don't replace it.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-12 text-center">
+      <p class="pullquote text-xl text-ink-700 max-w-3xl mx-auto">
+        "We threw out our custom memory layer the day we plugged XMem in. Three days of integration saved six weeks of bug fixing."
+      </p>
+      <p class="text-sm text-ink-500 mt-3">— Infra lead, YC W26 voice-agent startup</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── HOW IT WORKS / FLOW ─────────────── -->
+<section class="py-20 lg:py-24" style="background: linear-gradient(180deg, #f5f1fa 0%, #fbfaf7 100%);">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="max-w-3xl mb-14">
+      <div class="eyebrow mb-3">Architecture</div>
+      <h2 class="headline text-4xl sm:text-5xl text-ink-900 mb-5">One write. One recall. A belief engine in the middle.</h2>
+      <p class="text-lg text-ink-600 leading-relaxed">Your agent sends raw events. XMem extracts facts, resolves entities, supersedes stale beliefs, and serves back a ranked, scoped, source-tagged context window.</p>
+    </div>
+
+    <div class="card p-8 lg:p-10">
+      <div class="grid lg:grid-cols-5 gap-4 items-center text-center">
+        <div>
+          <div class="flow-node mx-auto mb-3"><span class="c-kw" style="color:#6B3FA0;">your</span> agent</div>
+          <div class="text-xs text-ink-500">writes events</div>
+        </div>
+        <div class="hidden lg:flex justify-center"><span class="flow-arrow">→</span></div>
+        <div>
+          <div class="flow-node accent mx-auto mb-3">XMem engine</div>
+          <div class="flex flex-wrap justify-center gap-1 text-[10px]">
+            <span class="mono-pill">extract</span>
+            <span class="mono-pill">resolve</span>
+            <span class="mono-pill">supersede</span>
+            <span class="mono-pill">decay</span>
+          </div>
+        </div>
+        <div class="hidden lg:flex justify-center"><span class="flow-arrow">→</span></div>
+        <div>
+          <div class="flow-node mx-auto mb-3">ranked context</div>
+          <div class="text-xs text-ink-500">injected into LLM</div>
+        </div>
+      </div>
+
+      <div class="mt-10 pt-8 border-t border-ink-900/8">
+        <div class="term">
+          <div><span class="prompt">$</span> curl -X POST https://api.xmem.ai/v1/recall \</div>
+          <div class="pl-4">-H "Authorization: Bearer xm_live_..." \</div>
+          <div class="pl-4">-d '{"agent_id":"support-bot","user_id":"u_4713","query":"reach them?"}'</div>
+          <div class="mt-3 out">→ {</div>
+          <div class="pl-4 out">  "facts": [{</div>
+          <div class="pl-8 out">    "content": "prefers email over SMS",</div>
+          <div class="pl-8 out">    "confidence": 0.94,</div>
+          <div class="pl-8 out">    "source": "chat:2026-04-18",</div>
+          <div class="pl-8 out">    "supersedes": ["fact_8a1c..."],</div>
+          <div class="pl-8 out">    "ttl_days": 180</div>
+          <div class="pl-4 out">  }],</div>
+          <div class="pl-4 out">  "prompt": "User u_4713 prefers email over SMS (src: chat 2026-04-18).",</div>
+          <div class="pl-4 out">  "tokens": 42, "latency_ms": 67</div>
+          <div class="out">}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── PRIMITIVES ─────────────── -->
+<section class="py-24 lg:py-28">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="max-w-3xl mb-12">
+      <div class="eyebrow mb-3">Core primitives</div>
+      <h2 class="headline text-4xl sm:text-5xl text-ink-900 mb-5">Six objects. One coherent mental model.</h2>
+      <p class="text-lg text-ink-600 leading-relaxed">Everything in XMem is built from these. Learn them in an afternoon; never hit a dead end.</p>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div class="prim-card">
+        <div class="prim-icon">FACT</div>
+        <h3 class="font-serif text-xl font-medium text-ink-900 mb-2">Fact</h3>
+        <p class="text-sm text-ink-600 leading-relaxed mb-3">A structured belief about a user, entity, or world state. Has content, confidence, source, and a decay curve.</p>
+        <span class="mono-pill">mem.write(content=...)</span>
+      </div>
+      <div class="prim-card">
+        <div class="prim-icon">EPIS</div>
+        <h3 class="font-serif text-xl font-medium text-ink-900 mb-2">Episode</h3>
+        <p class="text-sm text-ink-600 leading-relaxed mb-3">A conversation, session, or interaction — raw. XMem extracts facts from episodes automatically.</p>
+        <span class="mono-pill">mem.log_episode(...)</span>
+      </div>
+      <div class="prim-card">
+        <div class="prim-icon">ART</div>
+        <h3 class="font-serif text-xl font-medium text-ink-900 mb-2">Artifact</h3>
+        <p class="text-sm text-ink-600 leading-relaxed mb-3">Structured objects your agent produces — tickets, PRs, summaries. Linked back to the facts that shaped them.</p>
+        <span class="mono-pill">mem.attach_artifact(...)</span>
+      </div>
+      <div class="prim-card">
+        <div class="prim-icon">SUP</div>
+        <h3 class="font-serif text-xl font-medium text-ink-900 mb-2">Supersede chain</h3>
+        <p class="text-sm text-ink-600 leading-relaxed mb-3">New facts supersede old. The chain is queryable — you can always replay the belief history for any entity.</p>
+        <span class="mono-pill">mem.history(fact_id=...)</span>
+      </div>
+      <div class="prim-card">
+        <div class="prim-icon">POL</div>
+        <h3 class="font-serif text-xl font-medium text-ink-900 mb-2">Policy</h3>
+        <p class="text-sm text-ink-600 leading-relaxed mb-3">Who (which agent, which user tier) sees what. Scoped at fact-level. Useful when one engine serves multiple products.</p>
+        <span class="mono-pill">mem.policy.grant(...)</span>
+      </div>
+      <div class="prim-card">
+        <div class="prim-icon">AUD</div>
+        <h3 class="font-serif text-xl font-medium text-ink-900 mb-2">Audit log</h3>
+        <p class="text-sm text-ink-600 leading-relaxed mb-3">Every read, write, and supersede is logged with actor and timestamp. Export to your SIEM. Enterprise-grade, day one.</p>
+        <span class="mono-pill">mem.audit.stream(...)</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── USE CASES ─────────────── -->
+<section class="py-20 lg:py-24 bg-white border-y border-ink-900/6">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="max-w-3xl mb-12">
+      <div class="eyebrow mb-3">Built for</div>
+      <h2 class="headline text-4xl sm:text-5xl text-ink-900">Every agent that holds a conversation longer than a goldfish.</h2>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="uc-card">
+        <div class="uc-icon" style="background:#ebe3f6; color:#573285;">S</div>
+        <div>
+          <h3 class="font-serif text-lg font-medium text-ink-900 mb-1">Support agents</h3>
+          <p class="text-sm text-ink-600 leading-relaxed">Know the user's plan, their last three tickets, and the policy changes since they signed up. Stop asking "what's your order number?"</p>
+        </div>
+      </div>
+      <div class="uc-card">
+        <div class="uc-icon" style="background:#fbeed6; color:#8a5a1f;">C</div>
+        <div>
+          <h3 class="font-serif text-lg font-medium text-ink-900 mb-1">Coding agents</h3>
+          <p class="text-sm text-ink-600 leading-relaxed">Remember which patterns this repo favors, what conventions were deprecated last month, and which files the user owns.</p>
+        </div>
+      </div>
+      <div class="uc-card">
+        <div class="uc-icon" style="background:#e3ecd8; color:#45602f;">V</div>
+        <div>
+          <h3 class="font-serif text-lg font-medium text-ink-900 mb-1">Voice agents</h3>
+          <p class="text-sm text-ink-600 leading-relaxed">&lt;80ms p50 is the latency budget you need. Facts-only recall means short prompts — fewer tokens, lower cost, faster TTFB.</p>
+        </div>
+      </div>
+      <div class="uc-card">
+        <div class="uc-icon" style="background:#dce3ea; color:#3e4a56;">R</div>
+        <div>
+          <h3 class="font-serif text-lg font-medium text-ink-900 mb-1">Research agents</h3>
+          <p class="text-sm text-ink-600 leading-relaxed">Track what's been read, what's been ruled out, and which claims are still load-bearing. Supersede chains = reproducible research.</p>
+        </div>
+      </div>
+      <div class="uc-card">
+        <div class="uc-icon" style="background:#f3dce1; color:#843849;">Co</div>
+        <div>
+          <h3 class="font-serif text-lg font-medium text-ink-900 mb-1">Companions</h3>
+          <p class="text-sm text-ink-600 leading-relaxed">Users want an AI that <em>actually</em> knows them. Not one that forgot their dog's name between sessions.</p>
+        </div>
+      </div>
+      <div class="uc-card">
+        <div class="uc-icon" style="background:#ebe3f6; color:#573285;">W</div>
+        <div>
+          <h3 class="font-serif text-lg font-medium text-ink-900 mb-1">Workflow / ops agents</h3>
+          <p class="text-sm text-ink-600 leading-relaxed">Long-running agents that span days and tools. Lineage matters here more than anywhere — XMem gives you audit + replay.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── FOR CTOs ─────────────── -->
+<section class="py-24 lg:py-28">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="grid lg:grid-cols-2 gap-12 items-start">
+      <div>
+        <div class="eyebrow mb-3">For CTOs</div>
+        <h2 class="headline text-4xl sm:text-5xl text-ink-900 mb-6">The memory layer you'd build if you had six months.</h2>
+        <p class="text-lg text-ink-700 leading-relaxed mb-6">
+          Every team building agents writes some version of this themselves. Chat history truncation. De-duping facts. Hand-rolled entity resolution. Deciding whose contradiction to trust. It's six months of distraction from your actual product.
+        </p>
+        <p class="text-lg text-ink-700 leading-relaxed">
+          XMem is that layer — built, battle-tested, benchmarked, compliant. You ship the agent. We ship the brain.
+        </p>
+      </div>
+      <div class="space-y-3">
+        <div class="card flex items-start gap-4">
+          <div class="w-10 h-10 rounded-lg bg-plum-50 text-plum-700 flex items-center justify-center font-bold flex-shrink-0">SOC</div>
+          <div>
+            <div class="font-semibold text-ink-900">SOC 2 Type II · HIPAA-ready</div>
+            <div class="text-sm text-ink-600 mt-0.5">Encryption at rest and in transit. DPA on request. VPC deploy on Enterprise.</div>
+          </div>
+        </div>
+        <div class="card flex items-start gap-4">
+          <div class="w-10 h-10 rounded-lg bg-plum-50 text-plum-700 flex items-center justify-center font-bold flex-shrink-0">0</div>
+          <div>
+            <div class="font-semibold text-ink-900">Zero training on your data. Ever.</div>
+            <div class="text-sm text-ink-600 mt-0.5">Your facts are yours. Never used to train models. Export-on-exit as JSON.</div>
+          </div>
+        </div>
+        <div class="card flex items-start gap-4">
+          <div class="w-10 h-10 rounded-lg bg-plum-50 text-plum-700 flex items-center justify-center font-bold flex-shrink-0">SDK</div>
+          <div>
+            <div class="font-semibold text-ink-900">Python, TypeScript, Go — OSS SDKs.</div>
+            <div class="text-sm text-ink-600 mt-0.5">MIT-licensed. Self-host the SDK; point it at our managed engine or your own deploy.</div>
+          </div>
+        </div>
+        <div class="card flex items-start gap-4">
+          <div class="w-10 h-10 rounded-lg bg-plum-50 text-plum-700 flex items-center justify-center font-bold flex-shrink-0">⟶</div>
+          <div>
+            <div class="font-semibold text-ink-900">Drop-in. No lock-in.</div>
+            <div class="text-sm text-ink-600 mt-0.5">Three calls to integrate. One call to export everything. We don't hold your data hostage.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── PRICING ─────────────── -->
+<section id="pricing" class="py-24 lg:py-28 bg-white border-y border-ink-900/6">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="text-center max-w-2xl mx-auto mb-14">
+      <div class="eyebrow mb-3">Pricing</div>
+      <h2 class="headline text-4xl sm:text-5xl text-ink-900 mb-4">Start free. Scale when it works.</h2>
+      <p class="text-lg text-ink-600">Every plan includes every feature. You're only paying for volume.</p>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
+
+      <!-- Hacker -->
+      <div class="price-card">
+        <div class="plan-name">Hacker</div>
+        <div class="text-sm text-ink-500 mt-1 mb-5">Side projects & hackathons.</div>
+        <div class="plan-price">$0</div>
+        <div class="text-sm text-ink-500 mb-6">free forever</div>
+        <ul class="space-y-2.5 text-sm text-ink-700 mb-8 flex-1">
+          <li class="flex gap-2"><span class="text-plum-600">✓</span> 10K adds / month</li>
+          <li class="flex gap-2"><span class="text-plum-600">✓</span> 100K recalls / month</li>
+          <li class="flex gap-2"><span class="text-plum-600">✓</span> All primitives & SDKs</li>
+          <li class="flex gap-2"><span class="text-plum-600">✓</span> Community Discord support</li>
+          <li class="flex gap-2"><span class="text-plum-600">✓</span> Shared infra · p50 &lt; 120ms</li>
+        </ul>
+        <a href="#signup" class="btn-secondary w-full justify-center">Get API key</a>
+      </div>
+
+      <!-- Startup -->
+      <div class="price-card">
+        <div class="plan-name">Startup</div>
+        <div class="text-sm text-ink-500 mt-1 mb-5">First agent in production.</div>
+        <div class="plan-price">$49<span style="font-size:1rem; color:#7a7272; font-family:'Manrope';">/mo</span></div>
+        <div class="text-sm text-ink-500 mb-6">+ usage beyond included</div>
+        <ul class="space-y-2.5 text-sm text-ink-700 mb-8 flex-1">
+          <li class="flex gap-2"><span class="text-plum-600">✓</span> 250K adds / month</li>
+          <li class="flex gap-2"><span class="text-plum-600">✓</span> 2.5M recalls / month</li>
+          <li class="flex gap-2"><span class="text-plum-600">✓</span> Shared infra · p50 &lt; 100ms</li>
+          <li class="flex gap-2"><span class="text-plum-600">✓</span> Email support · 1 business day</li>
+          <li class="flex gap-2"><span class="text-plum-600">✓</span> Private Slack channel</li>
+          <li class="flex gap-2"><span class="text-plum-600">✓</span> Usage analytics dashboard</li>
+        </ul>
+        <a href="#signup" class="btn-secondary w-full justify-center">Get started</a>
+      </div>
+
+      <!-- Scale (featured) -->
+      <div class="price-card featured">
+        <div class="absolute top-0 right-6 -translate-y-1/2"><span class="tag" style="background:#6B3FA0;color:white;">most popular</span></div>
+        <div class="plan-name">Scale</div>
+        <div class="text-sm text-ink-500 mt-1 mb-5">Real users, real traffic.</div>
+        <div class="plan-price">$199<span style="font-size:1rem; color:#7a7272; font-family:'Manrope';">/mo</span></div>
+        <div class="text-sm text-ink-500 mb-6">+ usage beyond included</div>
+        <ul class="space-y-2.5 text-sm text-ink-700 mb-8 flex-1">
+          <li class="flex gap-2"><span class="text-plum-600">✓</span> 5M adds / month</li>
+          <li class="flex gap-2"><span class="text-plum-600">✓</span> 50M recalls / month</li>
+          <li class="flex gap-2"><span class="text-plum-600">✓</span> Dedicated infra · p50 &lt; 80ms</li>
+          <li class="flex gap-2"><span class="text-plum-600">✓</span> Priority support · 4hr SLA</li>
+          <li class="flex gap-2"><span class="text-plum-600">✓</span> Audit log export</li>
+          <li class="flex gap-2"><span class="text-plum-600">✓</span> 99.9% uptime SLA</li>
+        </ul>
+        <a href="#signup" class="btn-primary w-full justify-center">Get started</a>
+      </div>
+
+      <!-- Enterprise -->
+      <div class="price-card">
+        <div class="plan-name">Enterprise</div>
+        <div class="text-sm text-ink-500 mt-1 mb-5">Regulated, at scale.</div>
+        <div class="plan-price">Custom</div>
+        <div class="text-sm text-ink-500 mb-6">talk to founders</div>
+        <ul class="space-y-2.5 text-sm text-ink-700 mb-8 flex-1">
+          <li class="flex gap-2"><span class="text-plum-600">✓</span> Unlimited volume</li>
+          <li class="flex gap-2"><span class="text-plum-600">✓</span> VPC / single-tenant deploy</li>
+          <li class="flex gap-2"><span class="text-plum-600">✓</span> HIPAA · custom DPA · SSO</li>
+          <li class="flex gap-2"><span class="text-plum-600">✓</span> 99.99% uptime SLA</li>
+          <li class="flex gap-2"><span class="text-plum-600">✓</span> Dedicated solutions engineer</li>
+          <li class="flex gap-2"><span class="text-plum-600">✓</span> Custom decay & policy models</li>
+        </ul>
+        <a href="#demo" class="btn-secondary w-full justify-center">Book a call</a>
+      </div>
+    </div>
+
+    <p class="text-center text-sm text-ink-500 mt-8">
+      Priced on <span class="mono-pill">adds</span> (events written) and <span class="mono-pill">recalls</span> (context requests). Everything else — facts, episodes, artifacts, supersede chains — is just how we think about what's inside.
+    </p>
+  </div>
+</section>
+
+<!-- ─────────────── MEMORY HUB BRIDGE ─────────────── -->
+<section class="py-20 lg:py-24" style="background: linear-gradient(135deg, #fbfaf7 0%, #f5f1fa 100%);">
+  <div class="max-w-6xl mx-auto px-6 lg:px-10">
+    <div class="text-center max-w-3xl mx-auto mb-10">
+      <div class="eyebrow mb-3">Same engine, two surfaces</div>
+      <h2 class="headline text-3xl sm:text-4xl lg:text-5xl text-ink-900 mb-5">
+        When your agents outgrow the API, <span class="italic text-plum-700">your whole company is next.</span>
+      </h2>
+      <p class="text-lg text-ink-600 leading-relaxed">
+        Most XMem customers ship their agent, then roll memory out to the rest of the team. That's Memory Hub — the same belief engine, surfaced as a product humans actually use.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-4 max-w-5xl mx-auto">
+      <!-- XMem (current) -->
+      <div class="card relative" style="background:#fafaff; border-color:#d4c0ed;">
+        <div class="absolute top-5 right-5 text-[10px] font-bold uppercase tracking-wider text-plum-600 bg-plum-100 px-2 py-1 rounded-full">you are here</div>
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-11 h-11 rounded-lg bg-plum-100 flex items-center justify-center text-plum-700 text-xl">🔌</div>
+          <div>
+            <div class="font-serif text-xl font-medium text-ink-900">XMem</div>
+            <div class="text-xs text-ink-500">Memory for your agent</div>
+          </div>
+        </div>
+        <p class="text-sm text-ink-700 leading-relaxed mb-5">A drop-in SDK. Your code, your agent, your stack. One engine per application.</p>
+        <ul class="text-sm text-ink-600 space-y-2">
+          <li class="flex gap-2"><span class="text-plum-400">·</span> Python, TypeScript, Go SDKs</li>
+          <li class="flex gap-2"><span class="text-plum-400">·</span> Fact-level belief revision</li>
+          <li class="flex gap-2"><span class="text-plum-400">·</span> Scoped per agent · per user</li>
+          <li class="flex gap-2"><span class="text-plum-400">·</span> $0 → $199 → custom</li>
+        </ul>
+      </div>
+
+      <!-- Memory Hub (upsell) -->
+      <a href="index.html#memory-hub" class="card group block relative hover:border-plum-300" style="background:white;">
+        <div class="absolute top-5 right-5 text-xs font-semibold text-ink-500 group-hover:text-plum-600 flex items-center gap-1 transition">
+          Explore
+          <svg class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" viewBox="0 0 12 12" fill="none"><path d="M4 2L8 6L4 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-11 h-11 rounded-lg bg-paper-200 flex items-center justify-center text-ink-800 text-xl group-hover:bg-plum-100 group-hover:text-plum-700 transition">🧠</div>
+          <div>
+            <div class="font-serif text-xl font-medium text-ink-900">Memory Hub</div>
+            <div class="text-xs text-ink-500">Memory for your company</div>
+          </div>
+        </div>
+        <p class="text-sm text-ink-700 leading-relaxed mb-5">A platform your whole team uses. Captures across every AI tool. Serves every teammate and every agent.</p>
+        <ul class="text-sm text-ink-600 space-y-2">
+          <li class="flex gap-2"><span class="text-plum-400">·</span> UI for humans · API for agents</li>
+          <li class="flex gap-2"><span class="text-plum-400">·</span> Notion, Slack, Drive, ChatGPT, Claude...</li>
+          <li class="flex gap-2"><span class="text-plum-400">·</span> Audience tiers · E2E Personal Space</li>
+          <li class="flex gap-2"><span class="text-plum-400">·</span> Per-seat · starts at team-size of 5</li>
+        </ul>
+      </a>
+    </div>
+
+    <div class="text-center mt-10">
+      <p class="text-sm text-ink-500 italic max-w-2xl mx-auto">Your XMem API keys work inside Memory Hub on day one — same facts, same supersede chains, same audit log. No migration.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── FAQ ─────────────── -->
+<section class="py-24 lg:py-28">
+  <div class="max-w-4xl mx-auto px-6 lg:px-10">
+    <div class="text-center mb-12">
+      <div class="eyebrow mb-3">FAQ</div>
+      <h2 class="headline text-4xl sm:text-5xl text-ink-900">Developer questions.</h2>
+    </div>
+    <div class="divide-y divide-ink-900/8">
+      <details class="group border-b border-ink-900/8 py-5">
+        <summary class="flex justify-between items-start gap-6">
+          <span class="font-serif text-xl font-medium text-ink-900">How does XMem relate to Memory Hub?</span>
+          <span class="faq-icon text-plum-600 font-light text-2xl leading-none mt-0.5">+</span>
+        </summary>
+        <p class="text-ink-700 leading-relaxed mt-4 pr-12">Same engine, two surfaces. Memory Hub is the product your company's team uses. XMem is the API your agents use. You can run both against the same memory store.</p>
+      </details>
+      <details class="group border-b border-ink-900/8 py-5">
+        <summary class="flex justify-between items-start gap-6">
+          <span class="font-serif text-xl font-medium text-ink-900">Do I still need my vector DB?</span>
+          <span class="faq-icon text-plum-600 font-light text-2xl leading-none mt-0.5">+</span>
+        </summary>
+        <p class="text-ink-700 leading-relaxed mt-4 pr-12">If you're doing document RAG, keep it. XMem handles belief state — user preferences, decisions, entity resolution, supersedes. Most teams end up running both.</p>
+      </details>
+      <details class="group border-b border-ink-900/8 py-5">
+        <summary class="flex justify-between items-start gap-6">
+          <span class="font-serif text-xl font-medium text-ink-900">What's the latency overhead?</span>
+          <span class="faq-icon text-plum-600 font-light text-2xl leading-none mt-0.5">+</span>
+        </summary>
+        <p class="text-ink-700 leading-relaxed mt-4 pr-12">p50 under 80ms on Scale, p99 under 220ms. Fast enough for voice. We publish full latency distributions on the status page.</p>
+      </details>
+      <details class="group border-b border-ink-900/8 py-5">
+        <summary class="flex justify-between items-start gap-6">
+          <span class="font-serif text-xl font-medium text-ink-900">Can I self-host?</span>
+          <span class="faq-icon text-plum-600 font-light text-2xl leading-none mt-0.5">+</span>
+        </summary>
+        <p class="text-ink-700 leading-relaxed mt-4 pr-12">Enterprise customers get a single-tenant VPC deploy. We don't publish a self-host-anywhere image yet — that's on the roadmap for H2 2026.</p>
+      </details>
+      <details class="group border-b border-ink-900/8 py-5">
+        <summary class="flex justify-between items-start gap-6">
+          <span class="font-serif text-xl font-medium text-ink-900">What LLMs does XMem work with?</span>
+          <span class="faq-icon text-plum-600 font-light text-2xl leading-none mt-0.5">+</span>
+        </summary>
+        <p class="text-ink-700 leading-relaxed mt-4 pr-12">All of them. XMem returns a context string and structured facts. You pass them into OpenAI, Anthropic, Gemini, Llama, Mistral — whatever you're using.</p>
+      </details>
+      <details class="group border-b border-ink-900/8 py-5">
+        <summary class="flex justify-between items-start gap-6">
+          <span class="font-serif text-xl font-medium text-ink-900">How do you handle PII?</span>
+          <span class="faq-icon text-plum-600 font-light text-2xl leading-none mt-0.5">+</span>
+        </summary>
+        <p class="text-ink-700 leading-relaxed mt-4 pr-12">Tagged at the fact level, encrypted at rest, scoped via policy. Delete-by-user-id is one API call and cascades through the entire supersede chain.</p>
+      </details>
+      <details class="group border-b border-ink-900/8 py-5">
+        <summary class="flex justify-between items-start gap-6">
+          <span class="font-serif text-xl font-medium text-ink-900">Is it open source?</span>
+          <span class="faq-icon text-plum-600 font-light text-2xl leading-none mt-0.5">+</span>
+        </summary>
+        <p class="text-ink-700 leading-relaxed mt-4 pr-12">The SDKs are MIT. The engine is commercial — that's where the belief-revision work lives, and it's how we fund the research.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── FINAL CTA ─────────────── -->
+<section class="gradient-band compounding-grid relative overflow-hidden">
+  <div class="relative max-w-5xl mx-auto px-6 lg:px-10 py-24 text-center">
+    <div class="eyebrow mb-4" style="color:#e8dcf9;">Ship memory in an afternoon</div>
+    <h2 class="headline text-4xl sm:text-6xl text-white mb-6 max-w-4xl mx-auto">
+      Your agent's memory problem is already solved. <span class="italic">Plug it in.</span>
+    </h2>
+    <div class="flex flex-wrap gap-3 justify-center mb-6">
+      <a href="#signup" class="btn-primary" style="background: white; color: #573285;">
+        Get API key
+        <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none"><path d="M6 3L11 8L6 13" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="#docs" class="btn-secondary" style="background: transparent; color: white; border-color: rgba(255,255,255,0.4);">Read docs</a>
+    </div>
+    <div class="inline-flex items-center gap-3 text-sm text-white/70 font-mono">
+      <span>$ pip install xmem</span>
+      <span class="dot-separator"></span>
+      <span>npm i xmem</span>
+      <span class="dot-separator"></span>
+      <span>go get github.com/xtrace-ai/xmem-go</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── FOOTER ─────────────── -->
+<footer class="bg-ink-900 text-ink-400 pt-16 pb-10">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-10 pb-12 border-b border-white/8">
+      <div>
+        <div class="eyebrow mb-4" style="color:#946ccb;">Product</div>
+        <ul class="space-y-2.5 text-sm">
+          <li><a href="index.html#memory-hub" class="hover:text-white transition">Memory Hub</a></li>
+          <li><a href="xmem.html" class="hover:text-white transition">XMem</a></li>
+          <li><a href="#pricing" class="hover:text-white transition">Pricing</a></li>
+          <li><a href="#" class="hover:text-white transition">Security</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="eyebrow mb-4" style="color:#946ccb;">Developers</div>
+        <ul class="space-y-2.5 text-sm">
+          <li><a href="#docs" class="hover:text-white transition">Docs</a></li>
+          <li><a href="#" class="hover:text-white transition">API reference</a></li>
+          <li><a href="#" class="hover:text-white transition">SDKs</a></li>
+          <li><a href="#" class="hover:text-white transition">Changelog</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="eyebrow mb-4" style="color:#946ccb;">Company</div>
+        <ul class="space-y-2.5 text-sm">
+          <li><a href="#" class="hover:text-white transition">About</a></li>
+          <li><a href="#" class="hover:text-white transition">Research</a></li>
+          <li><a href="#" class="hover:text-white transition">Customers</a></li>
+          <li><a href="#" class="hover:text-white transition">Careers</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="eyebrow mb-4" style="color:#946ccb;">Resources</div>
+        <ul class="space-y-2.5 text-sm">
+          <li><a href="#" class="hover:text-white transition">Blog</a></li>
+          <li><a href="#" class="hover:text-white transition">News</a></li>
+          <li><a href="#" class="hover:text-white transition">Discord</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="pt-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+      <div class="flex items-center gap-3">
+        <span class="logo-dot" style="background: linear-gradient(135deg, #946ccb 0%, #482c6b 100%);">X</span>
+        <span class="font-serif text-lg text-white">XTrace</span>
+        <span class="text-ink-500 text-sm italic hidden sm:inline">· Memory you own.</span>
+      </div>
+      <div class="flex items-center gap-6 text-xs text-ink-500">
+        <span>© 2026 XTrace</span>
+        <a href="#" class="hover:text-white">Privacy</a>
+        <a href="#" class="hover:text-white">Terms</a>
+        <a href="#" class="hover:text-white">Security</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  function switchTab(ev, id) {
+    const tab = ev.currentTarget;
+    const shell = tab.closest('.code-shell');
+    shell.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+    shell.querySelectorAll('.code-pane').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    shell.querySelector('#' + id).classList.add('active');
+  }
+</script>
+
+</body>
+</html>

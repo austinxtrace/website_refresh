@@ -1,0 +1,764 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>XTrace — Access was the easy part. Understanding is the work.</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..800;1,6..72,300..800&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          plum: { 50:'#f5f1fa', 100:'#ebe3f6', 200:'#d4c0ed', 300:'#b596de', 400:'#946ccb', 500:'#7a4fbb', 600:'#6B3FA0', 700:'#573285', 800:'#482c6b', 900:'#3c2757' },
+          paper: { 50:'#fbfaf7', 100:'#f5f2eb', 200:'#ebe6d9' },
+          ink: { 900:'#1a1717', 800:'#2b2626', 700:'#3d3737', 600:'#554e4e', 500:'#7a7272', 400:'#a39b9b', 300:'#cfc8c8' },
+          amber: '#d98f3e', moss: '#6b8f4e', rose: '#b85c6f', slate: '#5a6b7a'
+        },
+        fontFamily: {
+          serif: ['Newsreader', 'ui-serif', 'Georgia', 'serif'],
+          sans: ['Manrope', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+        },
+      }
+    }
+  }
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Manrope', sans-serif;
+    background: #fbfaf7;
+    color: #1a1717;
+    background-image:
+      radial-gradient(rgba(107,63,160,0.025) 1px, transparent 1px),
+      radial-gradient(rgba(107,63,160,0.02) 1px, transparent 1px);
+    background-size: 32px 32px, 16px 16px;
+    background-position: 0 0, 8px 8px;
+  }
+  .font-serif { font-family: 'Newsreader', serif; font-feature-settings: "ss01"; letter-spacing: -0.01em; }
+  .headline { font-family: 'Newsreader', serif; letter-spacing: -0.025em; line-height: 1.02; font-weight: 500; }
+  .eyebrow { font-family: 'Manrope', sans-serif; font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; font-size: 0.72rem; color: #6B3FA0; }
+  .pullquote { font-family: 'Newsreader', serif; font-style: italic; font-weight: 400; }
+  .btn-primary {
+    background: #6B3FA0; color: white; font-weight: 600;
+    padding: 0.85rem 1.5rem; border-radius: 0.6rem;
+    transition: all 0.18s ease; display: inline-flex; align-items: center; gap: 0.5rem;
+    box-shadow: 0 1px 2px rgba(72,44,107,0.15), 0 4px 12px rgba(107,63,160,0.18);
+  }
+  .btn-primary:hover { background: #573285; transform: translateY(-1px); box-shadow: 0 2px 4px rgba(72,44,107,0.2), 0 8px 20px rgba(107,63,160,0.22); }
+  .btn-secondary {
+    background: white; color: #1a1717; font-weight: 600;
+    padding: 0.85rem 1.5rem; border-radius: 0.6rem;
+    border: 1.5px solid #d4c0ed;
+    transition: all 0.18s ease; display: inline-flex; align-items: center; gap: 0.5rem;
+  }
+  .btn-secondary:hover { border-color: #6B3FA0; color: #6B3FA0; }
+  .card {
+    background: white; border: 1px solid rgba(26,23,23,0.06);
+    border-radius: 0.8rem; padding: 1.75rem;
+    transition: all 0.2s ease;
+  }
+  .card:hover { border-color: rgba(107,63,160,0.2); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(107,63,160,0.06); }
+  .card-accent { width: 2.25rem; height: 2.25rem; border-radius: 0.5rem; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; }
+  details > summary { list-style: none; cursor: pointer; }
+  details > summary::-webkit-details-marker { display: none; }
+  details[open] .faq-icon { transform: rotate(45deg); }
+  .faq-icon { transition: transform 0.2s ease; }
+  .grid-bg-a {
+    background: linear-gradient(135deg, #f5f1fa 0%, #fbfaf7 100%);
+    position: relative; overflow: hidden;
+  }
+  .grid-bg-a::before {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(107,63,160,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(107,63,160,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  }
+  .hero-tangle path { stroke: #a39b9b; stroke-width: 1.25; fill: none; opacity: 0.55; stroke-linecap: round; }
+  .hero-ordered path { stroke: #6B3FA0; stroke-width: 1.5; fill: none; opacity: 0.7; stroke-linecap: round; }
+  .hero-chip { font-family: 'Manrope', sans-serif; font-size: 0.7rem; font-weight: 600; padding: 0.22rem 0.55rem; border-radius: 999px; background: white; border: 1px solid rgba(26,23,23,0.08); color: #2b2626; white-space: nowrap; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+  .dot-separator { width: 3px; height: 3px; background: currentColor; border-radius: 999px; opacity: 0.5; display: inline-block; vertical-align: middle; margin: 0 0.6rem; }
+  .gradient-band { background: linear-gradient(135deg, #3c2757 0%, #6B3FA0 65%, #946ccb 100%); }
+  .compounding-grid {
+    background-image:
+      linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  .bar { background: linear-gradient(90deg, #6B3FA0 0%, #946ccb 100%); border-radius: 0 8px 8px 0; height: 40px; display:flex; align-items: center; justify-content: flex-end; padding-right: 1rem; color: white; font-weight: 700; font-family: 'Manrope', sans-serif; font-size: 0.9rem; }
+  .bar-muted { background: #d4c0ed; color: #482c6b; }
+  .bar-faint { background: #ebe3f6; color: #7a7272; }
+  .logo-dot { display: inline-flex; width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, #946ccb 0%, #573285 100%); align-items: center; justify-content: center; color: white; font-family: 'Newsreader', serif; font-weight: 700; font-size: 1rem; }
+  .tag { font-family: 'Manrope', sans-serif; font-size: 0.72rem; font-weight: 600; color: #6B3FA0; background: #f5f1fa; padding: 0.18rem 0.55rem; border-radius: 999px; display: inline-block; }
+  .mini-code { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; background: #f5f2eb; color: #482c6b; padding: 0.15rem 0.4rem; border-radius: 4px; }
+  @keyframes pulseNode { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+  .pulse-node { animation: pulseNode 2.4s ease-in-out infinite; }
+
+  /* Step flow */
+  .step-num { font-family: 'Newsreader', serif; font-size: 3.2rem; font-weight: 400; line-height: 1; color: #6B3FA0; opacity: 0.9; }
+  /* Before / After */
+  .ba-before { background: #fff5f5; border: 1px solid #f3dce1; border-radius: 0.8rem; padding: 1.25rem 1.4rem; }
+  .ba-after  { background: #f5f1fa; border: 1px solid #d4c0ed; border-radius: 0.8rem; padding: 1.25rem 1.4rem; }
+  .ba-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 0.55rem; display: inline-flex; align-items: center; gap: 0.35rem; }
+  .source-chip { display: inline-flex; align-items: center; gap: 0.3rem; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; background: white; border: 1px solid rgba(26,23,23,0.08); color: #3d3737; margin-right: 0.35rem; margin-top: 0.35rem; }
+  .strike-value { text-decoration: line-through; color: #a39b9b; }
+
+  /* Nav dropdown — Pinecone-style */
+  .nav-dropdown { display: none; position: absolute; top: 100%; left: 0; padding-top: 0.5rem; }
+  .nav-item:hover .nav-dropdown { display: block; }
+  .nav-card { background: white; border: 1px solid rgba(26,23,23,0.08); border-radius: 14px; padding: 0.5rem; width: 640px; box-shadow: 0 10px 30px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04); display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .nav-card-row { display: flex; gap: 0.9rem; align-items: flex-start; padding: 0.9rem; border-radius: 10px; transition: background 0.15s ease; }
+  .nav-card-row:hover { background: #f5f1fa; }
+  .nav-card-icon { width: 2.2rem; height: 2.2rem; border-radius: 0.55rem; background: #f5f1fa; color: #6B3FA0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.2rem; }
+  .nav-card-row:hover .nav-card-icon { background: #6B3FA0; color: white; }
+  .nav-card-title { font-weight: 700; color: #1a1717; font-size: 0.95rem; margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.4rem; }
+  .nav-card-desc { color: #554e4e; font-size: 0.82rem; line-height: 1.4; }
+  .nav-arrow { opacity: 0; transition: all 0.15s ease; }
+  .nav-card-row:hover .nav-arrow { opacity: 1; transform: translateX(2px); }
+</style>
+</head>
+<body class="antialiased">
+
+<!-- ─────────────── NAV ─────────────── -->
+<nav class="sticky top-0 z-50 bg-paper-50/85 backdrop-blur-md border-b border-ink-900/6">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10 h-16 flex items-center justify-between">
+    <a href="#" class="flex items-center gap-2.5">
+      <span class="logo-dot">X</span>
+      <span class="font-serif text-xl font-medium tracking-tight text-ink-900">XTrace</span>
+    </a>
+    <div class="hidden md:flex items-center gap-8 text-sm font-medium text-ink-700">
+      <a href="#research" class="hover:text-plum-600 transition">Research</a>
+
+      <div class="nav-item relative">
+        <button class="flex items-center gap-1 hover:text-plum-600 transition py-5">Product
+          <svg class="w-3 h-3" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="nav-dropdown">
+          <div class="nav-card">
+            <a href="#memory-hub" class="nav-card-row">
+              <div class="nav-card-icon">🧠</div>
+              <div>
+                <div class="nav-card-title">
+                  Memory Hub
+                  <svg class="w-3 h-3 nav-arrow" viewBox="0 0 12 12" fill="none"><path d="M4 2L8 6L4 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="nav-card-desc">A living brain for your team. Capture across every AI tool, resolve conflicts, serve to any teammate or agent.</div>
+              </div>
+            </a>
+            <a href="xmem.html" class="nav-card-row">
+              <div class="nav-card-icon">🔌</div>
+              <div>
+                <div class="nav-card-title">
+                  XMem
+                  <svg class="w-3 h-3 nav-arrow" viewBox="0 0 12 12" fill="none"><path d="M4 2L8 6L4 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="nav-card-desc">Memory API for agent builders. Belief revision as a drop-in SDK. 92.3% on LongMemEval.</div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <a href="#docs" class="hover:text-plum-600 transition">Docs</a>
+      <a href="#resources" class="hover:text-plum-600 transition">Resources</a>
+      <a href="#pricing" class="hover:text-plum-600 transition">Pricing</a>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="#signin" class="hidden sm:inline text-sm font-medium text-ink-700 hover:text-plum-600 transition">Sign in</a>
+      <a href="#signup" class="btn-primary text-sm" style="padding: 0.55rem 1.1rem;">Start free</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ─────────────── HERO ─────────────── -->
+<section class="grid-bg-a relative">
+  <div class="relative max-w-7xl mx-auto px-6 lg:px-10 pt-20 pb-24 lg:pt-28 lg:pb-32">
+    <div class="grid lg:grid-cols-12 gap-12 items-center">
+      <div class="lg:col-span-7">
+        <div class="eyebrow mb-5">For AI-native startups</div>
+        <h1 class="headline text-4xl sm:text-5xl lg:text-6xl text-ink-900 mb-7 whitespace-nowrap">
+          <span class="block">Your AI knows everything,</span>
+          <span class="block">but <span class="text-plum-700">understands</span> nothing.</span>
+        </h1>
+        <p class="text-xl text-ink-600 leading-relaxed mb-9 max-w-xl">
+          Your tools have access to everything, but still doesn't understand your business. XTrace is the context engine that does.
+        </p>
+        <div class="flex flex-wrap gap-3 mb-8">
+          <a href="#signup" class="btn-primary">
+            Start free
+            <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none"><path d="M6 3L11 8L6 13" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a href="#demo" class="btn-secondary">Book a demo</a>
+        </div>
+      </div>
+
+      <div class="lg:col-span-5">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="card p-5 relative overflow-hidden">
+            <div class="text-xs font-semibold uppercase tracking-wider text-ink-500 mb-3">Access</div>
+            <div class="relative h-64">
+              <svg class="absolute inset-0 w-full h-full hero-tangle" viewBox="0 0 200 240" preserveAspectRatio="none">
+                <path d="M20,30 Q100,80 180,50 M20,70 Q120,40 180,110 M20,110 Q80,180 180,70 M20,150 Q140,100 180,200 M20,190 Q90,130 180,160 M20,220 Q130,180 180,40" />
+              </svg>
+              <div class="absolute top-1 left-0 hero-chip">ChatGPT</div>
+              <div class="absolute top-10 right-0 hero-chip">Claude</div>
+              <div class="absolute top-20 left-4 hero-chip">Gemini</div>
+              <div class="absolute top-28 right-4 hero-chip">Notion</div>
+              <div class="absolute top-40 left-0 hero-chip">Slack</div>
+              <div class="absolute top-48 right-2 hero-chip">Granola</div>
+              <div class="absolute bottom-3 left-6 hero-chip">Drive</div>
+              <div class="absolute bottom-12 right-0 hero-chip">GitHub</div>
+              <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white border border-ink-300 flex items-center justify-center text-ink-500 font-serif text-2xl shadow-sm">?</div>
+            </div>
+            <div class="mt-3 text-xs text-ink-500 italic">Connected. Still fragmented.</div>
+          </div>
+          <div class="card p-5 relative overflow-hidden border-plum-200">
+            <div class="text-xs font-semibold uppercase tracking-wider text-plum-600 mb-3">Understanding</div>
+            <div class="relative h-64">
+              <svg class="absolute inset-0 w-full h-full hero-ordered" viewBox="0 0 200 240" preserveAspectRatio="none">
+                <path d="M20,30 Q70,70 100,120" />
+                <path d="M180,30 Q130,70 100,120" />
+                <path d="M20,210 Q70,170 100,120" />
+                <path d="M180,210 Q130,170 100,120" />
+                <path d="M20,120 L85,120" />
+                <path d="M115,120 L180,120" />
+              </svg>
+              <div class="absolute top-1 left-1 hero-chip">ChatGPT</div>
+              <div class="absolute top-1 right-1 hero-chip">Claude</div>
+              <div class="absolute bottom-1 left-1 hero-chip">Notion</div>
+              <div class="absolute bottom-1 right-1 hero-chip">Slack</div>
+              <div class="absolute top-1/2 left-0 -translate-y-1/2 hero-chip text-[10px]">v1</div>
+              <div class="absolute top-1/2 right-0 -translate-y-1/2 hero-chip text-[10px]">v3</div>
+              <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full pulse-node" style="background: linear-gradient(135deg, #946ccb 0%, #573285 100%); box-shadow: 0 4px 20px rgba(107,63,160,0.35);">
+                <div class="w-full h-full flex items-center justify-center text-white font-serif text-xl">X</div>
+              </div>
+            </div>
+            <div class="mt-3 text-xs text-plum-700 italic font-medium">Resolved. Ranked. Live.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── PROOF BAND ─────────────── -->
+<section class="border-y border-ink-900/6 bg-white/60">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10 py-6">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4 text-center">
+      <div><div class="font-serif text-2xl font-medium text-plum-700">50%</div><div class="text-xs text-ink-500 mt-0.5">faster onboarding</div></div>
+      <div class="md:border-l md:border-ink-900/6"><div class="font-serif text-2xl font-medium text-plum-700">92.3%</div><div class="text-xs text-ink-500 mt-0.5">retrieval · LongMemEval</div></div>
+      <div class="md:border-l md:border-ink-900/6"><div class="font-serif text-2xl font-medium text-plum-700">30%</div><div class="text-xs text-ink-500 mt-0.5">fewer tokens per answer</div></div>
+      <div class="md:border-l md:border-ink-900/6"><div class="font-serif text-2xl font-medium text-plum-700">8+</div><div class="text-xs text-ink-500 mt-0.5">tools connected out of the box</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── PROBLEM ─────────────── -->
+<section class="py-24 lg:py-28">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="eyebrow mb-4">The problem</div>
+    <h2 class="headline text-4xl sm:text-5xl lg:text-6xl text-ink-900 mb-8 max-w-3xl">
+      What does it mean for your company to be <em class="italic text-plum-700 font-normal">understood?</em>
+    </h2>
+    <p class="text-lg text-ink-700 leading-relaxed mb-10 max-w-3xl">
+      A great chief of staff, six months in, knows who actually decides, which Slack channel is real and which is performative, and what changed last week. That's <em>understanding</em> — and it's what an AI agent with access to your Drive, Slack, and CRM doesn't have.
+    </p>
+
+    <div class="border-l-2 border-plum-600 pl-6 py-2 max-w-3xl">
+      <p class="pullquote text-2xl sm:text-3xl text-ink-900 leading-tight">
+        Access means an agent can reach your data. Understanding means it knows what that data means.
+      </p>
+    </div>
+
+    <div class="mt-16 mb-4 eyebrow">Five ways access alone fails</div>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="card"><div class="card-accent bg-plum-50 text-plum-700 mb-4">01</div>
+        <h3 class="font-serif text-xl font-medium text-ink-900 mb-2">Sources contradict.</h3>
+        <p class="text-sm text-ink-600 leading-relaxed">Slack says Friday. Linear says Wednesday. Your agent picks whichever it finds first.</p></div>
+      <div class="card"><div class="card-accent mb-4" style="background: #fbeed6; color: #8a5a1f;">02</div>
+        <h3 class="font-serif text-xl font-medium text-ink-900 mb-2">Identities fragment.</h3>
+        <p class="text-sm text-ink-600 leading-relaxed">Lisa Chen shows up as five strings across five tools. Retrieval treats them as strangers.</p></div>
+      <div class="card"><div class="card-accent mb-4" style="background: #e3ecd8; color: #45602f;">03</div>
+        <h3 class="font-serif text-xl font-medium text-ink-900 mb-2">Facts decay.</h3>
+        <p class="text-sm text-ink-600 leading-relaxed">Your January doc is three pivots behind. Nothing tells you that.</p></div>
+      <div class="card"><div class="card-accent mb-4" style="background: #f3dce1; color: #843849;">04</div>
+        <h3 class="font-serif text-xl font-medium text-ink-900 mb-2">Sources aren't equal.</h3>
+        <p class="text-sm text-ink-600 leading-relaxed">A signed contract outweighs a Slack thread. Retrieval has no idea.</p></div>
+      <div class="card"><div class="card-accent mb-4" style="background: #dce3ea; color: #3e4a56;">05</div>
+        <h3 class="font-serif text-xl font-medium text-ink-900 mb-2">Answers live across sources.</h3>
+        <p class="text-sm text-ink-600 leading-relaxed">"Migration at risk because A, B, and C" exists nowhere until something synthesizes it.</p></div>
+      <div class="card flex flex-col justify-between" style="background: #f5f1fa; border-color: #d4c0ed;">
+        <div>
+          <div class="card-accent bg-plum-600 text-white mb-4">X</div>
+          <p class="text-sm text-plum-800 leading-relaxed italic">Giving an agent access and expecting understanding is like hiring a new employee every morning and asking them to make decisions by lunch.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── THE SHIFT ─────────────── -->
+<section class="py-20 lg:py-24 bg-white/50 border-y border-ink-900/6">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="eyebrow mb-4">The shift</div>
+    <h2 class="headline text-4xl sm:text-5xl lg:text-6xl text-ink-900 mb-8 max-w-4xl">
+      Retrieval finds fragments. XTrace maintains a <em class="italic text-plum-700 font-normal">worldview.</em>
+    </h2>
+    <p class="text-lg text-ink-700 leading-relaxed max-w-3xl mb-8">
+      Most tools search at runtime — a scavenger hunt that starts from zero every time. XTrace maintains a continuously updated model of what your company knows. The answer doesn't get searched for. It already exists.
+    </p>
+    <p class="text-base text-ink-600 max-w-3xl">
+      <strong class="text-ink-900">This is why we call it a belief revision engine, not a memory.</strong> Facts supersede, retract, and expire with full lineage. You can ask <em class="text-plum-700">what did we used to believe?</em> and the answer is real.
+    </p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- ─────────────── MEMORY HUB ─────────────── -->
+<!-- ═══════════════════════════════════════════ -->
+<section id="memory-hub" class="py-24 lg:py-32">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+
+    <!-- Section header -->
+    <div class="max-w-3xl mb-16">
+      <div class="eyebrow mb-4">Memory Hub</div>
+      <h2 class="headline text-4xl sm:text-5xl lg:text-6xl text-ink-900 mb-6">
+        A living brain for your team.
+      </h2>
+      <p class="text-lg text-ink-700 leading-relaxed">
+        Capture every AI conversation, document, and decision across your stack. Resolve conflicts. Serve the right answer to the right teammate — human or agent.
+      </p>
+    </div>
+
+    <!-- How it works: 3 steps -->
+    <div class="mb-4 eyebrow text-ink-500">How it works</div>
+    <div class="grid md:grid-cols-3 gap-6 mb-24">
+      <div class="card">
+        <div class="step-num mb-4">01</div>
+        <div class="tag mb-3">Capture</div>
+        <h3 class="font-serif text-2xl font-medium text-ink-900 mb-3">From every tool you already use.</h3>
+        <p class="text-sm text-ink-600 leading-relaxed mb-4">Chrome extension for ChatGPT, Claude, and Gemini. Native syncs for Notion, Slack, Granola, Drive, GitHub.</p>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="source-chip">ChatGPT</span><span class="source-chip">Claude</span><span class="source-chip">Gemini</span><span class="source-chip">Notion</span><span class="source-chip">Slack</span><span class="source-chip">Granola</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="step-num mb-4">02</div>
+        <div class="tag mb-3">Synthesize</div>
+        <h3 class="font-serif text-2xl font-medium text-ink-900 mb-3">Into a brain that reasons.</h3>
+        <p class="text-sm text-ink-600 leading-relaxed">Conflicts detected, identities unified, sources ranked, facts versioned with supersede and retract chains.</p>
+        <div class="mt-4 p-3 bg-paper-100 rounded-lg text-xs font-mono text-ink-700 leading-relaxed">
+          <div><span class="text-plum-700">fact:</span> launch_date = Aug 15</div>
+          <div><span class="text-ink-400">supersedes v1:</span> <span class="line-through text-ink-400">Jun 30</span></div>
+          <div><span class="text-ink-400">sources:</span> Linear, all-hands recording</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="step-num mb-4">03</div>
+        <div class="tag mb-3">Serve</div>
+        <h3 class="font-serif text-2xl font-medium text-ink-900 mb-3">To every teammate and agent.</h3>
+        <p class="text-sm text-ink-600 leading-relaxed">Ask in natural language. Spin up Context Agents. Enforce audience-scoped redaction. Export anywhere.</p>
+        <div class="mt-4 flex flex-wrap gap-1.5">
+          <span class="source-chip">Chat UI</span><span class="source-chip">Slack bot</span><span class="source-chip">API</span><span class="source-chip">Chrome</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─────────── BEFORE / AFTER ─────────── -->
+    <div class="mb-4 eyebrow text-ink-500">Before / After XTrace</div>
+    <h3 class="headline text-3xl sm:text-4xl text-ink-900 mb-12 max-w-2xl">The same question. Two different worlds.</h3>
+
+    <div class="space-y-5 mb-24">
+
+      <!-- Scenario 1 -->
+      <div class="card p-0 overflow-hidden">
+        <div class="px-6 py-4 border-b border-ink-900/6 bg-paper-100">
+          <span class="font-mono text-sm text-ink-700">"What's our launch date?"</span>
+        </div>
+        <div class="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-ink-900/6">
+          <div class="p-6">
+            <div class="ba-label text-rose"><span>●</span> Before XTrace</div>
+            <div class="space-y-2 mb-4">
+              <div class="text-sm text-ink-700"><span class="font-mono text-xs text-ink-500">Slack:</span> "Launching Friday"</div>
+              <div class="text-sm text-ink-700"><span class="font-mono text-xs text-ink-500">Linear:</span> "Aug 15"</div>
+              <div class="text-sm text-ink-700"><span class="font-mono text-xs text-ink-500">Notion:</span> "June 30" <span class="text-xs text-ink-400">(last edited 4mo ago)</span></div>
+            </div>
+            <div class="text-xs text-rose font-semibold">Agent returns Notion's answer. It's wrong.</div>
+          </div>
+          <div class="p-6">
+            <div class="ba-label text-plum-600"><span>●</span> After XTrace</div>
+            <div class="text-2xl font-serif font-medium text-ink-900 mb-1">August 15</div>
+            <div class="text-sm text-ink-600 mb-3">(revised from June 30 → Aug 15, 4mo ago)</div>
+            <div class="flex flex-wrap gap-1">
+              <span class="source-chip">Linear</span><span class="source-chip">all-hands · Aug 5</span>
+            </div>
+            <div class="mt-3 text-xs text-plum-700 font-semibold">One answer. Cited. Current.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scenario 2 -->
+      <div class="card p-0 overflow-hidden">
+        <div class="px-6 py-4 border-b border-ink-900/6 bg-paper-100">
+          <span class="font-mono text-sm text-ink-700">"Who owns the Acme relationship?"</span>
+        </div>
+        <div class="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-ink-900/6">
+          <div class="p-6">
+            <div class="ba-label text-rose"><span>●</span> Before XTrace</div>
+            <div class="space-y-2 mb-4">
+              <div class="text-sm text-ink-700"><span class="font-mono text-xs text-ink-500">CRM:</span> Jamie O.</div>
+              <div class="text-sm text-ink-700"><span class="font-mono text-xs text-ink-500">Gmail thread:</span> "lisa.chen@acme"</div>
+              <div class="text-sm text-ink-700"><span class="font-mono text-xs text-ink-500">Slack:</span> @marcus posted updates</div>
+            </div>
+            <div class="text-xs text-rose font-semibold">Three names. Nobody knows who to ask.</div>
+          </div>
+          <div class="p-6">
+            <div class="ba-label text-plum-600"><span>●</span> After XTrace</div>
+            <div class="text-lg font-serif font-medium text-ink-900 mb-2">Marcus Lin (primary), Jamie Ortiz (exec)</div>
+            <div class="text-sm text-ink-600 mb-2">Relationship held by Marcus since March. Jamie covers QBRs.</div>
+            <div class="flex flex-wrap gap-1">
+              <span class="source-chip">Slack · #acme</span><span class="source-chip">CRM</span><span class="source-chip">calendar</span>
+            </div>
+            <div class="mt-3 text-xs text-plum-700 font-semibold">Identity unified. Ownership clear.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scenario 3 -->
+      <div class="card p-0 overflow-hidden">
+        <div class="px-6 py-4 border-b border-ink-900/6 bg-paper-100">
+          <span class="font-mono text-sm text-ink-700">New hire → first meaningful contribution</span>
+        </div>
+        <div class="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-ink-900/6">
+          <div class="p-6">
+            <div class="ba-label text-rose"><span>●</span> Before XTrace</div>
+            <div class="text-3xl font-serif font-medium text-ink-900 mb-1">3 weeks</div>
+            <div class="text-sm text-ink-600">Reading stale docs. Asking the same three people. Rediscovering context that existed somewhere else.</div>
+          </div>
+          <div class="p-6">
+            <div class="ba-label text-plum-600"><span>●</span> After XTrace</div>
+            <div class="text-3xl font-serif font-medium text-ink-900 mb-1">3 days</div>
+            <div class="text-sm text-ink-600">Ask the Context Agent anything. It cites. It admits uncertainty. It sounds like your team because it's read what your team wrote.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ─────────── WHY DIFFERENT ─────────── -->
+    <div class="mb-4 eyebrow text-ink-500">Why Memory Hub is different</div>
+    <h3 class="headline text-3xl sm:text-4xl text-ink-900 mb-12 max-w-3xl">Four things no one else ships together.</h3>
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5 mb-24">
+      <div class="card">
+        <div class="w-9 h-9 rounded-lg bg-plum-50 flex items-center justify-center text-plum-700 font-bold mb-4">⚡</div>
+        <h4 class="font-serif text-lg font-medium text-ink-900 mb-2">Belief revision</h4>
+        <p class="text-sm text-ink-600 leading-relaxed">Not just synthesis. A formal engine that retracts, supersedes, and expires facts with full lineage.</p>
+      </div>
+      <div class="card">
+        <div class="w-9 h-9 rounded-lg bg-plum-50 flex items-center justify-center text-plum-700 font-bold mb-4">◫</div>
+        <h4 class="font-serif text-lg font-medium text-ink-900 mb-2">A product, not a file format</h4>
+        <p class="text-sm text-ink-600 leading-relaxed">A UI, Chrome extension, and Context Agents your team uses directly. Not just files for agents.</p>
+      </div>
+      <div class="card">
+        <div class="w-9 h-9 rounded-lg bg-plum-50 flex items-center justify-center text-plum-700 font-bold mb-4">◐</div>
+        <h4 class="font-serif text-lg font-medium text-ink-900 mb-2">Personal + team</h4>
+        <p class="text-sm text-ink-600 leading-relaxed">E2E-encrypted Personal Space under every shared base. Promote what you want, keep the rest private.</p>
+      </div>
+      <div class="card">
+        <div class="w-9 h-9 rounded-lg bg-plum-50 flex items-center justify-center text-plum-700 font-bold mb-4">⬒</div>
+        <h4 class="font-serif text-lg font-medium text-ink-900 mb-2">You own it</h4>
+        <p class="text-sm text-ink-600 leading-relaxed">Portable memory. Export everything as JSON. Not locked behind a model provider.</p>
+      </div>
+    </div>
+
+    <!-- ─────────── USE CASES ─────────── -->
+    <div class="mb-4 eyebrow text-ink-500">Use cases</div>
+    <h3 class="headline text-3xl sm:text-4xl text-ink-900 mb-12 max-w-3xl">Who it's for, day one.</h3>
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div class="card">
+        <div class="tag mb-3">Founders</div>
+        <h4 class="font-serif text-lg font-medium text-ink-900 mb-2">A brain for the chaos.</h4>
+        <p class="text-sm text-ink-600 leading-relaxed">Your investor updates, board decks, roadmap pivots — captured, versioned, and answerable.</p>
+      </div>
+      <div class="card">
+        <div class="tag mb-3">New hires</div>
+        <h4 class="font-serif text-lg font-medium text-ink-900 mb-2">Ramp in days.</h4>
+        <p class="text-sm text-ink-600 leading-relaxed">Context Agent trained on your team's voice. Ask anything. Cited answers, not tribal knowledge.</p>
+      </div>
+      <div class="card">
+        <div class="tag mb-3">Customer teams</div>
+        <h4 class="font-serif text-lg font-medium text-ink-900 mb-2">Memory per account.</h4>
+        <p class="text-sm text-ink-600 leading-relaxed">Every call, email, and decision per customer in one place. Agents draft replies with real context.</p>
+      </div>
+      <div class="card">
+        <div class="tag mb-3">AI agents</div>
+        <h4 class="font-serif text-lg font-medium text-ink-900 mb-2">Context before action.</h4>
+        <p class="text-sm text-ink-600 leading-relaxed">Your internal agents read Memory Hub before they respond. Fewer hallucinations, lower token cost.</p>
+      </div>
+    </div>
+
+    <!-- CTA under Memory Hub -->
+    <div class="mt-16 flex flex-wrap gap-3 justify-center">
+      <a href="#signup" class="btn-primary">Start free</a>
+      <a href="#demo" class="btn-secondary">Book a demo</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─────────────── COMPOUNDING ─────────────── -->
+<section class="compounding-grid relative overflow-hidden" style="background: linear-gradient(135deg, #f5f1fa 0%, #ebe3f6 100%);">
+  <div class="relative max-w-5xl mx-auto px-6 lg:px-10 py-24 text-center">
+    <div class="eyebrow mb-4">Why start today</div>
+    <h2 class="headline text-3xl sm:text-5xl text-ink-900 mb-8 max-w-4xl mx-auto">
+      The understanding has to accumulate. <span class="italic text-plum-700">You can't fast-forward it.</span>
+    </h2>
+    <p class="text-lg text-ink-700 leading-relaxed max-w-2xl mx-auto mb-10">
+      Day 1 your brain knows a little. Day 90 it knows your company better than your new hires. The team that starts today has six months no one can buy later.
+    </p>
+    <a href="#signup" class="inline-flex items-center gap-2 text-ink-900 font-semibold border-b-2 border-plum-600 hover:border-ink-900 pb-1 transition">
+      Start the compounding
+      <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none"><path d="M6 3L11 8L6 13" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- ─────────────── SOCIAL PROOF ─────────────── -->
+<!-- <section class="py-24">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="grid md:grid-cols-3 gap-5">
+      <div class="card">
+        <p class="pullquote text-lg text-ink-900 leading-snug mb-5">"New hires were ramping in three days instead of three weeks."</p>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-amber flex items-center justify-center text-white font-semibold text-sm">J</div>
+          <div>
+            <div class="font-semibold text-ink-900 text-sm">Jamie Ortiz</div>
+            <div class="text-xs text-ink-500">CEO, Solstice</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <p class="pullquote text-lg text-ink-900 leading-snug mb-5">"Cut support-agent tokens by a third. Didn't change the model — changed what it knew."</p>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-moss flex items-center justify-center text-white font-semibold text-sm">R</div>
+          <div>
+            <div class="font-semibold text-ink-900 text-sm">Riya Kapoor</div>
+            <div class="text-xs text-ink-500">CTO, Kestrel AI</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <p class="pullquote text-lg text-ink-900 leading-snug mb-5">"Every AI thing my team produced used to evaporate. Now it compounds."</p>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-rose flex items-center justify-center text-white font-semibold text-sm">M</div>
+          <div>
+            <div class="font-semibold text-ink-900 text-sm">Marcus Lin</div>
+            <div class="text-xs text-ink-500">Chief of Staff, Halcyon</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section> -->
+
+<!-- ─────────────── XMEM TEASER ─────────────── -->
+<section id="xmem-teaser" class="py-16 border-y border-ink-900/8" style="background: #2b2626;">
+  <div class="max-w-5xl mx-auto px-6 lg:px-10">
+    <div class="grid lg:grid-cols-12 gap-8 items-center">
+      <div class="lg:col-span-8">
+        <div class="eyebrow mb-3" style="color: #946ccb;">For developers</div>
+        <h2 class="font-serif text-3xl sm:text-4xl font-medium text-white mb-3">Building an AI agent? You need the same memory.</h2>
+        <p class="text-ink-300 leading-relaxed max-w-2xl">XMem is the same engine as a drop-in API. Python, TypeScript, Go. 92.3% on LongMemEval.</p>
+      </div>
+      <div class="lg:col-span-4 flex lg:justify-end">
+        <a href="xmem.html" class="btn-primary">
+          Explore XMem
+          <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none"><path d="M6 3L11 8L6 13" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── PRICING ─────────────── -->
+<section id="pricing" class="py-24">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="max-w-3xl mb-12">
+      <div class="eyebrow mb-4">Pricing</div>
+      <h2 class="headline text-4xl sm:text-5xl text-ink-900">
+        Free for you. <em class="italic text-plum-700 font-normal">Fair for your team.</em>
+      </h2>
+    </div>
+    <div class="grid md:grid-cols-3 gap-5">
+      <div class="card p-8">
+        <div class="eyebrow mb-3 text-ink-500">Personal</div>
+        <div class="font-serif text-5xl font-medium text-ink-900 mb-1">$0</div>
+        <div class="text-sm text-ink-500 mb-6">forever · no card</div>
+        <p class="text-sm text-ink-600 mb-6 leading-relaxed">Cross-tool capture, Personal Space, one Context Base, E2E encryption.</p>
+        <a href="#signup" class="btn-secondary w-full justify-center">Start free</a>
+      </div>
+      <div class="card p-8 relative" style="background: white; border: 2px solid #6B3FA0; transform: scale(1.02);">
+        <div class="absolute -top-3 left-1/2 -translate-x-1/2 text-xs font-bold uppercase tracking-wider bg-plum-600 text-white px-3 py-1 rounded-full">Most common</div>
+        <div class="eyebrow mb-3">Team</div>
+        <div class="font-serif text-5xl font-medium text-ink-900 mb-1">$<span class="text-plum-700">XX</span></div>
+        <div class="text-sm text-ink-500 mb-6">user/mo · 14-day trial</div>
+        <p class="text-sm text-ink-600 mb-6 leading-relaxed">Shared bases, audience redaction, Slack + GitHub integrations, team agents.</p>
+        <a href="#signup-team" class="btn-primary w-full justify-center">Start team trial</a>
+      </div>
+      <div class="card p-8">
+        <div class="eyebrow mb-3 text-ink-500">Enterprise</div>
+        <div class="font-serif text-5xl font-medium text-ink-900 mb-1">Custom</div>
+        <div class="text-sm text-ink-500 mb-6">regulated &amp; public sector</div>
+        <p class="text-sm text-ink-600 mb-6 leading-relaxed">VPC/on-prem, custom retention, SOC 2 evidence, dedicated support, SLA.</p>
+        <a href="#demo" class="btn-secondary w-full justify-center">Book a demo</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── FAQ ─────────────── -->
+<section class="py-24 bg-white/60 border-y border-ink-900/6">
+  <div class="max-w-4xl mx-auto px-6 lg:px-10">
+    <div class="eyebrow mb-4">Common questions</div>
+    <h2 class="headline text-4xl sm:text-5xl text-ink-900 mb-12">FAQ</h2>
+    <div class="space-y-2">
+      <details class="group border-b border-ink-900/8 py-5">
+        <summary class="flex justify-between items-start gap-6">
+          <span class="font-serif text-xl font-medium text-ink-900">How is this different from Notion AI or ChatGPT memory?</span>
+          <span class="faq-icon text-plum-600 font-light text-2xl leading-none mt-0.5">+</span>
+        </summary>
+        <p class="text-ink-700 leading-relaxed mt-4 pr-12">Those remember facts about you inside their walls. XTrace captures what your whole team produces across every tool, reasons about what's still true, and serves it anywhere.</p>
+      </details>
+      <details class="group border-b border-ink-900/8 py-5">
+        <summary class="flex justify-between items-start gap-6">
+          <span class="font-serif text-xl font-medium text-ink-900">How is this different from a vector DB or RAG pipeline?</span>
+          <span class="faq-icon text-plum-600 font-light text-2xl leading-none mt-0.5">+</span>
+        </summary>
+        <p class="text-ink-700 leading-relaxed mt-4 pr-12">RAG searches at runtime from zero every time. XTrace maintains a persistent, conflict-resolved model of your company. The underlying tooling uses vectors; the product is fundamentally different.</p>
+      </details>
+      <details class="group border-b border-ink-900/8 py-5">
+        <summary class="flex justify-between items-start gap-6">
+          <span class="font-serif text-xl font-medium text-ink-900">How is this different from other "company brain" products?</span>
+          <span class="faq-icon text-plum-600 font-light text-2xl leading-none mt-0.5">+</span>
+        </summary>
+        <p class="text-ink-700 leading-relaxed mt-4 pr-12">We ship a product, they ship a file format. XTrace has a UI, Context Agents, audience-aware redaction, and an E2E-encrypted Personal Space — plus XMem for developers who just want the plumbing.</p>
+      </details>
+      <details class="group border-b border-ink-900/8 py-5">
+        <summary class="flex justify-between items-start gap-6">
+          <span class="font-serif text-xl font-medium text-ink-900">Do I have to rip out my stack?</span>
+          <span class="faq-icon text-plum-600 font-light text-2xl leading-none mt-0.5">+</span>
+        </summary>
+        <p class="text-ink-700 leading-relaxed mt-4 pr-12">No. XTrace reads from Notion, Slack, ChatGPT, Claude, Gemini, Granola, Drive, GitHub. Nothing moves.</p>
+      </details>
+      <details class="group border-b border-ink-900/8 py-5">
+        <summary class="flex justify-between items-start gap-6">
+          <span class="font-serif text-xl font-medium text-ink-900">Who can see what?</span>
+          <span class="faq-icon text-plum-600 font-light text-2xl leading-none mt-0.5">+</span>
+        </summary>
+        <p class="text-ink-700 leading-relaxed mt-4 pr-12">Audience tiers scope views at the base and fact level. Personal Space is E2E encrypted — invisible to admins.</p>
+      </details>
+      <details class="group border-b border-ink-900/8 py-5">
+        <summary class="flex justify-between items-start gap-6">
+          <span class="font-serif text-xl font-medium text-ink-900">Is my data used to train models?</span>
+          <span class="faq-icon text-plum-600 font-light text-2xl leading-none mt-0.5">+</span>
+        </summary>
+        <p class="text-ink-700 leading-relaxed mt-4 pr-12">Never. SOC 2 Type II, encryption at rest and in transit, VPC for Enterprise.</p>
+      </details>
+      <details class="group border-b border-ink-900/8 py-5">
+        <summary class="flex justify-between items-start gap-6">
+          <span class="font-serif text-xl font-medium text-ink-900">What happens to my data if I leave?</span>
+          <span class="faq-icon text-plum-600 font-light text-2xl leading-none mt-0.5">+</span>
+        </summary>
+        <p class="text-ink-700 leading-relaxed mt-4 pr-12">You own it. Export as structured JSON any time.</p>
+      </details>
+      <details class="group border-b border-ink-900/8 py-5">
+        <summary class="flex justify-between items-start gap-6">
+          <span class="font-serif text-xl font-medium text-ink-900">How does Memory Hub relate to XMem?</span>
+          <span class="faq-icon text-plum-600 font-light text-2xl leading-none mt-0.5">+</span>
+        </summary>
+        <p class="text-ink-700 leading-relaxed mt-4 pr-12">Memory Hub is the product your team uses. XMem is the same engine as a developer API. Same brain, two surfaces.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── FINAL CTA ─────────────── -->
+<!-- <section class="gradient-band compounding-grid relative overflow-hidden">
+  <div class="relative max-w-5xl mx-auto px-6 lg:px-10 py-24 text-center">
+    <h2 class="headline text-4xl sm:text-6xl text-white mb-6 max-w-4xl mx-auto">
+      Your company is already being understood by somebody. <span class="italic">Let it be you.</span>
+    </h2>
+    <div class="flex flex-wrap gap-3 justify-center">
+      <a href="#signup" class="btn-primary" style="background: white; color: #573285;">
+        Start free
+        <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none"><path d="M6 3L11 8L6 13" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="#demo" class="btn-secondary" style="background: transparent; color: white; border-color: rgba(255,255,255,0.4);">Book a demo</a>
+    </div>
+  </div>
+</section> -->
+
+<!-- ─────────────── FOOTER ─────────────── -->
+<footer class="bg-ink-900 text-ink-400 pt-16 pb-10">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-10 pb-12 border-b border-white/8">
+      <div>
+        <div class="eyebrow mb-4" style="color:#946ccb;">Product</div>
+        <ul class="space-y-2.5 text-sm">
+          <li><a href="#memory-hub" class="hover:text-white transition">Memory Hub</a></li>
+          <li><a href="#pricing" class="hover:text-white transition">Pricing</a></li>
+          <li><a href="#" class="hover:text-white transition">Integrations</a></li>
+          <li><a href="#" class="hover:text-white transition">Security</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="eyebrow mb-4" style="color:#946ccb;">Developers</div>
+        <ul class="space-y-2.5 text-sm">
+          <li><a href="xmem.html" class="hover:text-white transition">XMem</a></li>
+          <li><a href="#" class="hover:text-white transition">Docs</a></li>
+          <li><a href="#" class="hover:text-white transition">API reference</a></li>
+          <li><a href="#" class="hover:text-white transition">SDKs</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="eyebrow mb-4" style="color:#946ccb;">Company</div>
+        <ul class="space-y-2.5 text-sm">
+          <li><a href="#" class="hover:text-white transition">About</a></li>
+          <li><a href="#" class="hover:text-white transition">Research</a></li>
+          <li><a href="#" class="hover:text-white transition">Customers</a></li>
+          <li><a href="#" class="hover:text-white transition">Careers</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="eyebrow mb-4" style="color:#946ccb;">Resources</div>
+        <ul class="space-y-2.5 text-sm">
+          <li><a href="#" class="hover:text-white transition">Blog</a></li>
+          <li><a href="#" class="hover:text-white transition">News</a></li>
+          <li><a href="#" class="hover:text-white transition">Changelog</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="pt-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+      <div class="flex items-center gap-3">
+        <span class="logo-dot" style="background: linear-gradient(135deg, #946ccb 0%, #482c6b 100%);">X</span>
+        <span class="font-serif text-lg text-white">XTrace</span>
+        <span class="text-ink-500 text-sm italic hidden sm:inline">· Memory you own.</span>
+      </div>
+      <div class="flex items-center gap-6 text-xs text-ink-500">
+        <span>© 2026 XTrace</span>
+        <a href="#" class="hover:text-white">Privacy</a>
+        <a href="#" class="hover:text-white">Terms</a>
+        <a href="#" class="hover:text-white">Security</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
