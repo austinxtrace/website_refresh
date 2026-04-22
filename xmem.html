@@ -43,7 +43,7 @@
   .font-serif { font-family: 'Newsreader', serif; font-feature-settings: "ss01"; letter-spacing: -0.01em; }
   .headline { font-family: 'Newsreader', serif; letter-spacing: -0.025em; line-height: 1.02; font-weight: 500; }
   .eyebrow { font-family: 'Manrope', sans-serif; font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; font-size: 0.72rem; color: #6B3FA0; }
-  .pullquote { font-family: 'Newsreader', serif; font-style: italic; font-weight: 400; }
+  .pullquote { font-family: 'Newsreader', serif; font-weight: 400; }
   .btn-primary {
     background: #6B3FA0; color: white; font-weight: 600;
     padding: 0.85rem 1.5rem; border-radius: 0.6rem;
@@ -109,7 +109,7 @@
   .code-pane { display: none; }
   .code-pane.active { display: block; }
   /* syntax coloring */
-  .c-com { color: #6b6484; font-style: italic; }
+  .c-com { color: #6b6484; }
   .c-kw  { color: #c693f5; }
   .c-str { color: #f5b66c; }
   .c-fn  { color: #7dd3fc; }
@@ -163,9 +163,8 @@
 <!-- ─────────────── NAV ─────────────── -->
 <nav class="sticky top-0 z-50 bg-paper-50/85 backdrop-blur-md border-b border-ink-900/6">
   <div class="max-w-7xl mx-auto px-6 lg:px-10 h-16 flex items-center justify-between">
-    <a href="index.html" class="flex items-center gap-2.5">
-      <span class="logo-dot">X</span>
-      <span class="font-serif text-xl font-medium tracking-tight text-ink-900">XTrace</span>
+    <a href="index.html" class="flex items-center">
+      <img src="Gradient Logo on Light Backgrounds.png" alt="XTrace" class="h-10 w-auto">
     </a>
     <div class="hidden md:flex items-center gap-8 text-sm font-medium text-ink-700">
       <a href="index.html#research" class="hover:text-plum-600 transition">Research</a>
@@ -222,7 +221,7 @@
           <span class="mono-pill">v1.0 · public beta</span>
         </div>
         <h1 class="headline text-5xl sm:text-6xl lg:text-7xl text-ink-900 mb-7">
-          Drop-in memory <span class="italic text-plum-700">that reasons.</span>
+          Drop-in memory <span class="text-plum-700">that reasons.</span>
         </h1>
         <p class="text-xl text-ink-600 leading-relaxed mb-9 max-w-2xl">
           A memory API for agent builders. Not a vector DB. Facts supersede, retract, and carry their lineage — so your agent stops contradicting itself on turn fifteen.
@@ -237,13 +236,7 @@
             Read docs
           </a>
         </div>
-        <div class="flex flex-wrap items-center gap-x-1 gap-y-2 text-xs font-medium text-ink-500 uppercase tracking-wider">
-          <span>Python · TypeScript · Go</span>
-          <span class="dot-separator"></span>
-          <span>p50 &lt; 80ms</span>
-          <span class="dot-separator"></span>
-          <span>SOC 2 Type II</span>
-        </div>
+       
       </div>
 
       <div class="lg:col-span-5">
@@ -322,11 +315,7 @@
 <span class="c-var">llm</span>.<span class="c-fn">Complete</span>(<span class="c-var">out</span>.<span class="c-var">Prompt</span>)</pre></div>
           </div>
         </div>
-        <div class="mt-3 text-center">
-          <span class="mono-pill">pip install xmem</span>
-          <span class="mono-pill ml-2">npm i xmem</span>
-          <span class="mono-pill ml-2">go get github.com/xtrace-ai/xmem-go</span>
-        </div>
+       
       </div>
     </div>
   </div>
@@ -354,20 +343,20 @@
 
 <!-- ─────────────── PROBLEM FOR DEVS ─────────────── -->
 <section class="py-24 lg:py-28">
-  <div class="max-w-5xl mx-auto px-6 lg:px-10">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
     <div class="eyebrow mb-4">The problem</div>
     <h2 class="headline text-4xl sm:text-5xl lg:text-6xl text-ink-900 mb-8 max-w-4xl">
-      Your agent remembers <em class="italic text-plum-700 font-normal">everything</em>. That's the bug.
+      Your agent remembers <span class="text-plum-700">everything</span>. That's the bug.
     </h2>
     <p class="text-lg text-ink-700 leading-relaxed mb-6 max-w-3xl">
       Stuff the last N turns into context. Bolt on a vector DB. Ship. Six weeks later your agent confidently tells a user their plan is "Pro" when they downgraded three messages ago. You ship a patch. It breaks something else.
     </p>
     <p class="text-lg text-ink-700 leading-relaxed mb-10 max-w-3xl">
-      Memory for agents isn't a retrieval problem. It's a <em>belief</em> problem — which facts are still true, which got superseded, and which source you trust when they disagree.
+      Memory for agents isn't a retrieval problem. It's a belief problem — which facts are still true, which got superseded, and which source you trust when they disagree.
     </p>
     <div class="border-l-2 border-plum-600 pl-6 py-2 max-w-3xl">
       <p class="pullquote text-2xl sm:text-3xl text-ink-900 leading-tight">
-        A vector DB stores strings. XMem stores <em>beliefs</em> — with lineage, supersedes, and decay.
+        A vector DB stores strings. XMem stores beliefs — with lineage, supersedes, and decay.
       </p>
     </div>
   </div>
@@ -385,11 +374,7 @@
     </div>
 
     <div class="grid lg:grid-cols-4 gap-5 mb-14">
-      <div class="metric-card">
-        <div class="metric-num">92.3<span style="font-size: 1.8rem; color:#946ccb;">%</span></div>
-        <div class="metric-label">LongMemEval</div>
-        <div class="metric-note">State of the art. Zep: 85.2%. Mem0: 64.2%. OpenAI Memory: 61%.</div>
-      </div>
+    
       <div class="metric-card">
         <div class="metric-num">92.3<span style="font-size: 1.8rem; color:#946ccb;">%</span></div>
         <div class="metric-label">LOCOMO</div>
@@ -438,7 +423,7 @@
           <div class="col-span-9"><div class="bench-bar bench-faint" style="width: 52.9%;">~52.9%</div></div>
         </div>
       </div>
-      <p class="text-xs text-ink-500 mt-5 italic">Notes: Mem0 score = their 2026 token-efficient pipeline (mem0.ai/research). Zep = Zep's own corrected number per their rebuttal (getzep.com). Letta = their published filesystem-only baseline. OpenAI Memory is estimated from Mem0's comparative "26% relative lift over OpenAI" figure.</p>
+      <p class="text-xs text-ink-500 mt-5">Notes: Mem0 score = their 2026 token-efficient pipeline (mem0.ai/research). Zep = Zep's own corrected number per their rebuttal (getzep.com). Letta = their published filesystem-only baseline. OpenAI Memory is estimated from Mem0's comparative "26% relative lift over OpenAI" figure.</p>
     </div>
   </div>
 </section>
@@ -450,7 +435,7 @@
       <div class="eyebrow mb-3">Under the hood</div>
       <h2 class="headline text-4xl sm:text-5xl lg:text-6xl text-ink-900 mb-6">Why not just a vector DB?</h2>
       <p class="text-lg text-ink-700 leading-relaxed mb-12 max-w-3xl">
-        A vector DB answers <em>"what looks like this?"</em> A memory engine answers <em>"what's true right now?"</em> Those are different queries, and they need different data structures.
+        A vector DB answers "what looks like this?" A memory engine answers "what's true right now?" Those are different queries, and they need different data structures.
       </p>
     </div>
 
@@ -479,12 +464,12 @@
       </div>
     </div>
 
-    <div class="mt-12 text-center">
+    <!-- <div class="mt-12 text-center">
       <p class="pullquote text-xl text-ink-700 max-w-3xl mx-auto">
         "We threw out our custom memory layer the day we plugged XMem in. Three days of integration saved six weeks of bug fixing."
       </p>
       <p class="text-sm text-ink-500 mt-3">— Infra lead, YC W26 voice-agent startup</p>
-    </div>
+    </div> -->
   </div>
 </section>
 
@@ -633,7 +618,7 @@
         <div class="uc-icon" style="background:#f3dce1; color:#843849;">Co</div>
         <div>
           <h3 class="font-serif text-lg font-medium text-ink-900 mb-1">Companions</h3>
-          <p class="text-sm text-ink-600 leading-relaxed">Users want an AI that <em>actually</em> knows them. Not one that forgot their dog's name between sessions.</p>
+          <p class="text-sm text-ink-600 leading-relaxed">Users want an AI that actually knows them. Not one that forgot their dog's name between sessions.</p>
         </div>
       </div>
       <div class="uc-card">
@@ -653,7 +638,7 @@
     <div class="grid lg:grid-cols-2 gap-12 items-start">
       <div>
         <div class="eyebrow mb-3">For CTOs</div>
-        <h2 class="headline text-4xl sm:text-5xl text-ink-900 mb-6">The memory layer you'd build if you had six months.</h2>
+        <h2 class="headline text-4xl sm:text-5xl text-ink-900 mb-6">The memory layer you'd build if you had a year.</h2>
         <p class="text-lg text-ink-700 leading-relaxed mb-6">
           Every team building agents writes some version of this themselves. Chat history truncation. De-duping facts. Hand-rolled entity resolution. Deciding whose contradiction to trust. It's six months of distraction from your actual product.
         </p>
@@ -787,7 +772,7 @@
     <div class="text-center max-w-3xl mx-auto mb-10">
       <div class="eyebrow mb-3">Same engine, two surfaces</div>
       <h2 class="headline text-3xl sm:text-4xl lg:text-5xl text-ink-900 mb-5">
-        When your agents outgrow the API, <span class="italic text-plum-700">your whole company is next.</span>
+        When your agents outgrow the API, <span class="text-plum-700">your whole company is next.</span>
       </h2>
       <p class="text-lg text-ink-600 leading-relaxed">
         Most XMem customers ship their agent, then roll memory out to the rest of the team. That's Memory Hub — the same belief engine, surfaced as a product humans actually use.
@@ -838,7 +823,7 @@
     </div>
 
     <div class="text-center mt-10">
-      <p class="text-sm text-ink-500 italic max-w-2xl mx-auto">Your XMem API keys work inside Memory Hub on day one — same facts, same supersede chains, same audit log. No migration.</p>
+      <p class="text-sm text-ink-500 max-w-2xl mx-auto">Your XMem API keys work inside Memory Hub on day one — same facts, same supersede chains, same audit log. No migration.</p>
     </div>
   </div>
 </section>
@@ -909,7 +894,7 @@
   <div class="relative max-w-5xl mx-auto px-6 lg:px-10 py-24 text-center">
     <div class="eyebrow mb-4" style="color:#e8dcf9;">Ship memory in an afternoon</div>
     <h2 class="headline text-4xl sm:text-6xl text-white mb-6 max-w-4xl mx-auto">
-      Your agent's memory problem is already solved. <span class="italic">Plug it in.</span>
+      Your agent's memory problem is already solved. <span>Plug it in.</span>
     </h2>
     <div class="flex flex-wrap gap-3 justify-center mb-6">
       <a href="#signup" class="btn-primary" style="background: white; color: #573285;">
@@ -972,7 +957,7 @@
       <div class="flex items-center gap-3">
         <span class="logo-dot" style="background: linear-gradient(135deg, #946ccb 0%, #482c6b 100%);">X</span>
         <span class="font-serif text-lg text-white">XTrace</span>
-        <span class="text-ink-500 text-sm italic hidden sm:inline">· Memory you own.</span>
+        <span class="text-ink-500 text-sm hidden sm:inline">· Memory you own.</span>
       </div>
       <div class="flex items-center gap-6 text-xs text-ink-500">
         <span>© 2026 XTrace</span>
