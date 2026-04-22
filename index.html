@@ -110,8 +110,10 @@
   .strike-value { text-decoration: line-through; color: #a39b9b; }
 
   /* Nav dropdown — Pinecone-style */
-  .nav-dropdown { display: none; position: absolute; top: 100%; left: 0; padding-top: 0.5rem; }
-  .nav-item:hover .nav-dropdown { display: block; }
+  .nav-dropdown { display: none; position: absolute; top: 100%; left: 0; padding-top: 0.5rem; z-index: 60; }
+  .nav-item:hover .nav-dropdown,
+  .nav-item:focus-within .nav-dropdown,
+  .nav-item.open .nav-dropdown { display: block; }
   .nav-card { background: white; border: 1px solid rgba(26,23,23,0.08); border-radius: 14px; padding: 0.5rem; width: 640px; box-shadow: 0 10px 30px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04); display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
   .nav-card-row { display: flex; gap: 0.9rem; align-items: flex-start; padding: 0.9rem; border-radius: 10px; transition: background 0.15s ease; }
   .nav-card-row:hover { background: #f5f1fa; }
@@ -164,8 +166,45 @@
         </div>
       </div>
 
-      <a href="#docs" class="hover:text-plum-600 transition">Docs</a>
-      <a href="#resources" class="hover:text-plum-600 transition">Resources</a>
+      <div class="nav-item relative">
+        <button class="flex items-center gap-1 hover:text-plum-600 transition py-5">Resources
+          <svg class="w-3 h-3" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="nav-dropdown">
+          <div class="nav-card" style="width: 320px; grid-template-columns: 1fr;">
+            <a href="#blog" class="nav-card-row">
+              <div class="nav-card-icon">📝</div>
+              <div>
+                <div class="nav-card-title">
+                  Blog
+                  <svg class="w-3 h-3 nav-arrow" viewBox="0 0 12 12" fill="none"><path d="M4 2L8 6L4 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="nav-card-desc">Research notes, engineering deep-dives, and product updates.</div>
+              </div>
+            </a>
+            <a href="#docs" class="nav-card-row">
+              <div class="nav-card-icon">📖</div>
+              <div>
+                <div class="nav-card-title">
+                  Docs
+                  <svg class="w-3 h-3 nav-arrow" viewBox="0 0 12 12" fill="none"><path d="M4 2L8 6L4 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="nav-card-desc">Integration guides, SDK references, and API specs.</div>
+              </div>
+            </a>
+            <a href="#news" class="nav-card-row">
+              <div class="nav-card-icon">📰</div>
+              <div>
+                <div class="nav-card-title">
+                  News
+                  <svg class="w-3 h-3 nav-arrow" viewBox="0 0 12 12" fill="none"><path d="M4 2L8 6L4 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="nav-card-desc">Announcements, press, and company updates.</div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
       <a href="#pricing" class="hover:text-plum-600 transition">Pricing</a>
     </div>
     <div class="flex items-center gap-3">
@@ -764,6 +803,23 @@
     </div>
   </div>
 </footer>
+
+<script>
+  document.querySelectorAll('.nav-item').forEach(item => {
+    const btn = item.querySelector('button');
+    if (!btn) return;
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      document.querySelectorAll('.nav-item.open').forEach(o => { if (o !== item) o.classList.remove('open'); });
+      item.classList.toggle('open');
+    });
+  });
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.nav-item')) {
+      document.querySelectorAll('.nav-item.open').forEach(o => o.classList.remove('open'));
+    }
+  });
+</script>
 
 </body>
 </html>

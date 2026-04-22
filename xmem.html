@@ -86,8 +86,10 @@
   .faq-icon { transition: transform 0.2s ease; }
 
   /* Nav dropdown — Pinecone-style */
-  .nav-dropdown { display: none; position: absolute; top: 100%; left: 0; padding-top: 0.5rem; }
-  .nav-item:hover .nav-dropdown { display: block; }
+  .nav-dropdown { display: none; position: absolute; top: 100%; left: 0; padding-top: 0.5rem; z-index: 60; }
+  .nav-item:hover .nav-dropdown,
+  .nav-item:focus-within .nav-dropdown,
+  .nav-item.open .nav-dropdown { display: block; }
   .nav-card { background: white; border: 1px solid rgba(26,23,23,0.08); border-radius: 14px; padding: 0.5rem; width: 640px; box-shadow: 0 10px 30px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04); display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
   .nav-card-row { display: flex; gap: 0.9rem; align-items: flex-start; padding: 0.9rem; border-radius: 10px; transition: background 0.15s ease; }
   .nav-card-row:hover { background: #f5f1fa; }
@@ -199,8 +201,45 @@
         </div>
       </div>
 
-      <a href="#docs" class="hover:text-plum-600 transition">Docs</a>
-      <a href="index.html#resources" class="hover:text-plum-600 transition">Resources</a>
+      <div class="nav-item relative">
+        <button class="flex items-center gap-1 hover:text-plum-600 transition py-5">Resources
+          <svg class="w-3 h-3" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="nav-dropdown">
+          <div class="nav-card" style="width: 320px; grid-template-columns: 1fr;">
+            <a href="index.html#blog" class="nav-card-row">
+              <div class="nav-card-icon">📝</div>
+              <div>
+                <div class="nav-card-title">
+                  Blog
+                  <svg class="w-3 h-3 nav-arrow" viewBox="0 0 12 12" fill="none"><path d="M4 2L8 6L4 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="nav-card-desc">Research notes, engineering deep-dives, and product updates.</div>
+              </div>
+            </a>
+            <a href="#docs" class="nav-card-row">
+              <div class="nav-card-icon">📖</div>
+              <div>
+                <div class="nav-card-title">
+                  Docs
+                  <svg class="w-3 h-3 nav-arrow" viewBox="0 0 12 12" fill="none"><path d="M4 2L8 6L4 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="nav-card-desc">Integration guides, SDK references, and API specs.</div>
+              </div>
+            </a>
+            <a href="index.html#news" class="nav-card-row">
+              <div class="nav-card-icon">📰</div>
+              <div>
+                <div class="nav-card-title">
+                  News
+                  <svg class="w-3 h-3 nav-arrow" viewBox="0 0 12 12" fill="none"><path d="M4 2L8 6L4 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="nav-card-desc">Announcements, press, and company updates.</div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
       <a href="#pricing" class="hover:text-plum-600 transition">Pricing</a>
     </div>
     <div class="flex items-center gap-3">
@@ -443,23 +482,23 @@
       <div class="card border-rose/30" style="background:#fff8f9;">
         <div class="text-xs font-semibold uppercase tracking-wider text-rose mb-4">Vector DB + RAG</div>
         <ul class="space-y-3 text-sm text-ink-700">
-          <li class="flex gap-3"><span class="text-rose font-bold">✕</span> Stores embeddings of strings. No notion of "true right now."</li>
-          <li class="flex gap-3"><span class="text-rose font-bold">✕</span> Contradictions coexist forever. Retrieval picks whichever scores higher.</li>
-          <li class="flex gap-3"><span class="text-rose font-bold">✕</span> No lineage. You can't answer <span class="mono-pill">why do you believe this?</span></li>
-          <li class="flex gap-3"><span class="text-rose font-bold">✕</span> No decay. A fact from Jan 2024 ranks with a fact from yesterday.</li>
-          <li class="flex gap-3"><span class="text-rose font-bold">✕</span> No identity resolution. "Lisa" and "L. Chen" are strangers.</li>
-          <li class="flex gap-3"><span class="text-rose font-bold">✕</span> You'll end up writing a belief layer on top. We already did.</li>
+          <li class="flex gap-3"><span class="text-rose font-bold">✕</span><span>Stores embeddings of strings. No notion of "true right now."</span></li>
+          <li class="flex gap-3"><span class="text-rose font-bold">✕</span><span>Contradictions coexist forever. Retrieval picks whichever scores higher.</span></li>
+          <li class="flex gap-3"><span class="text-rose font-bold">✕</span><span>No lineage. You can't answer <strong>why do you believe this?</strong></span></li>
+          <li class="flex gap-3"><span class="text-rose font-bold">✕</span><span>No decay. A fact from Jan 2024 ranks with a fact from yesterday.</span></li>
+          <li class="flex gap-3"><span class="text-rose font-bold">✕</span><span>No identity resolution. "Lisa" and "L. Chen" are strangers.</span></li>
+          <li class="flex gap-3"><span class="text-rose font-bold">✕</span><span>You'll end up writing a belief layer on top. We already did.</span></li>
         </ul>
       </div>
       <div class="card border-plum-200" style="background:#fafaff;">
         <div class="text-xs font-semibold uppercase tracking-wider text-plum-600 mb-4">XMem</div>
         <ul class="space-y-3 text-sm text-ink-700">
-          <li class="flex gap-3"><span class="text-plum-600 font-bold">✓</span> Stores <strong>facts</strong> — structured beliefs with timestamps, sources, and confidence.</li>
-          <li class="flex gap-3"><span class="text-plum-600 font-bold">✓</span> Newer facts <strong>supersede</strong> older ones. Retractions are first-class.</li>
-          <li class="flex gap-3"><span class="text-plum-600 font-bold">✓</span> Every answer carries lineage. One call returns the fact + its provenance.</li>
-          <li class="flex gap-3"><span class="text-plum-600 font-bold">✓</span> <strong>Decay curves</strong> per fact type. Preferences age differently than contracts.</li>
-          <li class="flex gap-3"><span class="text-plum-600 font-bold">✓</span> Entity resolution built in. "Lisa" = "L. Chen" = <span class="mono-pill">user:u_4713</span>.</li>
-          <li class="flex gap-3"><span class="text-plum-600 font-bold">✓</span> One SDK call. Works alongside your existing vector DB — we don't replace it.</li>
+          <li class="flex gap-3"><span class="text-plum-600 font-bold">✓</span><span>Stores <strong>facts</strong> — structured beliefs with timestamps, sources, and confidence.</span></li>
+          <li class="flex gap-3"><span class="text-plum-600 font-bold">✓</span><span>Newer facts <strong>supersede</strong> older ones. Retractions are first-class.</span></li>
+          <li class="flex gap-3"><span class="text-plum-600 font-bold">✓</span><span>Every answer carries lineage. One call returns the fact + its provenance.</span></li>
+          <li class="flex gap-3"><span class="text-plum-600 font-bold">✓</span><span><strong>Decay curves</strong> per fact type. Preferences age differently than contracts.</span></li>
+          <li class="flex gap-3"><span class="text-plum-600 font-bold">✓</span><span>Entity resolution built in. "Lisa" = "L. Chen" = user:u_4713.</span></li>
+          <li class="flex gap-3"><span class="text-plum-600 font-bold">✓</span><span>One SDK call. Works alongside your existing vector DB — we don't replace it.</span></li>
         </ul>
       </div>
     </div>
@@ -470,6 +509,24 @@
       </p>
       <p class="text-sm text-ink-500 mt-3">— Infra lead, YC W26 voice-agent startup</p>
     </div> -->
+
+    <div class="mt-12 card max-w-4xl mx-auto border-plum-200" style="background:#fafaff;">
+      <div class="flex items-start gap-4">
+        <div class="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center" style="background:#f5f1fa;">
+          <svg class="w-5 h-5 text-plum-600" viewBox="0 0 20 20" fill="none"><path d="M10 2L3 5v5c0 4.5 3 7.5 7 8 4-.5 7-3.5 7-8V5l-7-3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M7.5 10l2 2 3.5-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <div class="text-xs font-semibold uppercase tracking-wider text-plum-600 mb-2">Built from the ground up</div>
+          <p class="text-ink-700 leading-relaxed">
+            XMem runs on our own vector store — written from scratch, <strong class="text-ink-900">homomorphically encrypted</strong> so embeddings are searchable without ever being decrypted on our servers. The SDK is open source.
+          </p>
+          <a href="https://github.com/XTraceAI/xtrace-sdk" class="inline-flex items-center gap-2 mt-3 text-sm font-semibold text-plum-700 hover:text-plum-900 transition">
+            <svg class="w-4 h-4" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+            github.com/XTraceAI/xtrace-sdk
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -538,37 +595,31 @@
 
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
       <div class="prim-card">
-        <div class="prim-icon">FACT</div>
         <h3 class="font-serif text-xl font-medium text-ink-900 mb-2">Fact</h3>
         <p class="text-sm text-ink-600 leading-relaxed mb-3">A structured belief about a user, entity, or world state. Has content, confidence, source, and a decay curve.</p>
         <span class="mono-pill">mem.write(content=...)</span>
       </div>
       <div class="prim-card">
-        <div class="prim-icon">EPIS</div>
         <h3 class="font-serif text-xl font-medium text-ink-900 mb-2">Episode</h3>
         <p class="text-sm text-ink-600 leading-relaxed mb-3">A conversation, session, or interaction — raw. XMem extracts facts from episodes automatically.</p>
         <span class="mono-pill">mem.log_episode(...)</span>
       </div>
       <div class="prim-card">
-        <div class="prim-icon">ART</div>
         <h3 class="font-serif text-xl font-medium text-ink-900 mb-2">Artifact</h3>
         <p class="text-sm text-ink-600 leading-relaxed mb-3">Structured objects your agent produces — tickets, PRs, summaries. Linked back to the facts that shaped them.</p>
         <span class="mono-pill">mem.attach_artifact(...)</span>
       </div>
       <div class="prim-card">
-        <div class="prim-icon">SUP</div>
         <h3 class="font-serif text-xl font-medium text-ink-900 mb-2">Supersede chain</h3>
         <p class="text-sm text-ink-600 leading-relaxed mb-3">New facts supersede old. The chain is queryable — you can always replay the belief history for any entity.</p>
         <span class="mono-pill">mem.history(fact_id=...)</span>
       </div>
       <div class="prim-card">
-        <div class="prim-icon">POL</div>
         <h3 class="font-serif text-xl font-medium text-ink-900 mb-2">Policy</h3>
         <p class="text-sm text-ink-600 leading-relaxed mb-3">Who (which agent, which user tier) sees what. Scoped at fact-level. Useful when one engine serves multiple products.</p>
         <span class="mono-pill">mem.policy.grant(...)</span>
       </div>
       <div class="prim-card">
-        <div class="prim-icon">AUD</div>
         <h3 class="font-serif text-xl font-medium text-ink-900 mb-2">Audit log</h3>
         <p class="text-sm text-ink-600 leading-relaxed mb-3">Every read, write, and supersede is logged with actor and timestamp. Export to your SIEM. Enterprise-grade, day one.</p>
         <span class="mono-pill">mem.audit.stream(...)</span>
@@ -883,7 +934,7 @@
           <span class="font-serif text-xl font-medium text-ink-900">Is it open source?</span>
           <span class="faq-icon text-plum-600 font-light text-2xl leading-none mt-0.5">+</span>
         </summary>
-        <p class="text-ink-700 leading-relaxed mt-4 pr-12">The SDKs are MIT. The engine is commercial — that's where the belief-revision work lives, and it's how we fund the research.</p>
+        <p class="text-ink-700 leading-relaxed mt-4 pr-12">Yes — the SDK is MIT-licensed at <a href="https://github.com/XTraceAI/xtrace-sdk" class="text-plum-600 hover:text-plum-800 underline">github.com/XTraceAI/xtrace-sdk</a>, including our homomorphically encrypted vector store built from the ground up. The belief-revision engine is commercial — that's how we fund the research.</p>
       </details>
     </div>
   </div>
@@ -978,6 +1029,21 @@
     tab.classList.add('active');
     shell.querySelector('#' + id).classList.add('active');
   }
+
+  document.querySelectorAll('.nav-item').forEach(item => {
+    const btn = item.querySelector('button');
+    if (!btn) return;
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      document.querySelectorAll('.nav-item.open').forEach(o => { if (o !== item) o.classList.remove('open'); });
+      item.classList.toggle('open');
+    });
+  });
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.nav-item')) {
+      document.querySelectorAll('.nav-item.open').forEach(o => o.classList.remove('open'));
+    }
+  });
 </script>
 
 </body>
