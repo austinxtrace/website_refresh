@@ -395,7 +395,7 @@
     </p>
     <div class="border-l-2 border-plum-600 pl-6 py-2 max-w-3xl">
       <p class="pullquote text-2xl sm:text-3xl text-ink-900 leading-tight">
-        A vector DB stores strings. XMem stores beliefs — with lineage, supersedes, and decay.
+        A traditional vector DB stores strings. XMem stores beliefs — with lineage, supersedes, and decay.
       </p>
     </div>
   </div>
@@ -638,42 +638,36 @@
 
     <div class="grid md:grid-cols-2 gap-4">
       <div class="uc-card">
-        <div class="uc-icon" style="background:#ebe3f6; color:#573285;">S</div>
         <div>
           <h3 class="font-serif text-lg font-medium text-ink-900 mb-1">Support agents</h3>
           <p class="text-sm text-ink-600 leading-relaxed">Know the user's plan, their last three tickets, and the policy changes since they signed up. Stop asking "what's your order number?"</p>
         </div>
       </div>
       <div class="uc-card">
-        <div class="uc-icon" style="background:#fbeed6; color:#8a5a1f;">C</div>
         <div>
           <h3 class="font-serif text-lg font-medium text-ink-900 mb-1">Coding agents</h3>
           <p class="text-sm text-ink-600 leading-relaxed">Remember which patterns this repo favors, what conventions were deprecated last month, and which files the user owns.</p>
         </div>
       </div>
       <div class="uc-card">
-        <div class="uc-icon" style="background:#e3ecd8; color:#45602f;">V</div>
         <div>
           <h3 class="font-serif text-lg font-medium text-ink-900 mb-1">Voice agents</h3>
           <p class="text-sm text-ink-600 leading-relaxed">&lt;80ms p50 is the latency budget you need. Facts-only recall means short prompts — fewer tokens, lower cost, faster TTFB.</p>
         </div>
       </div>
       <div class="uc-card">
-        <div class="uc-icon" style="background:#dce3ea; color:#3e4a56;">R</div>
         <div>
           <h3 class="font-serif text-lg font-medium text-ink-900 mb-1">Research agents</h3>
           <p class="text-sm text-ink-600 leading-relaxed">Track what's been read, what's been ruled out, and which claims are still load-bearing. Supersede chains = reproducible research.</p>
         </div>
       </div>
       <div class="uc-card">
-        <div class="uc-icon" style="background:#f3dce1; color:#843849;">Co</div>
         <div>
           <h3 class="font-serif text-lg font-medium text-ink-900 mb-1">Companions</h3>
           <p class="text-sm text-ink-600 leading-relaxed">Users want an AI that actually knows them. Not one that forgot their dog's name between sessions.</p>
         </div>
       </div>
       <div class="uc-card">
-        <div class="uc-icon" style="background:#ebe3f6; color:#573285;">W</div>
         <div>
           <h3 class="font-serif text-lg font-medium text-ink-900 mb-1">Workflow / ops agents</h3>
           <p class="text-sm text-ink-600 leading-relaxed">Long-running agents that span days and tools. Lineage matters here more than anywhere — XMem gives you audit + replay.</p>
@@ -699,10 +693,10 @@
       </div>
       <div class="space-y-3">
         <div class="card flex items-start gap-4">
-          <div class="w-10 h-10 rounded-lg bg-plum-50 text-plum-700 flex items-center justify-center font-bold flex-shrink-0">SOC</div>
+          <div class="w-10 h-10 rounded-lg bg-plum-50 text-plum-700 flex items-center justify-center font-bold flex-shrink-0">HE</div>
           <div>
-            <div class="font-semibold text-ink-900">SOC 2 Type II · HIPAA-ready</div>
-            <div class="text-sm text-ink-600 mt-0.5">Encryption at rest and in transit. DPA on request. VPC deploy on Enterprise.</div>
+            <div class="font-semibold text-ink-900">Homomorphically encrypted by default</div>
+            <div class="text-sm text-ink-600 mt-0.5">Our own encrypted vector database keeps embeddings searchable while encrypted — we never see your data in the clear.</div>
           </div>
         </div>
         <div class="card flex items-start gap-4">
@@ -823,10 +817,10 @@
     <div class="text-center max-w-3xl mx-auto mb-10">
       <div class="eyebrow mb-3">Same engine, two surfaces</div>
       <h2 class="headline text-3xl sm:text-4xl lg:text-5xl text-ink-900 mb-5">
-        When your agents outgrow the API, <span class="text-plum-700">your whole company is next.</span>
+        Your agent has memory.<br><span class="text-plum-700">Your whole team should too.</span>
       </h2>
       <p class="text-lg text-ink-600 leading-relaxed">
-        Most XMem customers ship their agent, then roll memory out to the rest of the team. That's Memory Hub — the same belief engine, surfaced as a product humans actually use.
+        Most XMem customers ship their agent, then roll memory out to the rest of the team. That's Memory Hub: the same belief engine, surfaced as a product humans can use.
       </p>
     </div>
 
@@ -873,9 +867,7 @@
       </a>
     </div>
 
-    <div class="text-center mt-10">
-      <p class="text-sm text-ink-500 max-w-2xl mx-auto">Your XMem API keys work inside Memory Hub on day one — same facts, same supersede chains, same audit log. No migration.</p>
-    </div>
+  
   </div>
 </section>
 
@@ -941,7 +933,7 @@
 </section>
 
 <!-- ─────────────── FINAL CTA ─────────────── -->
-<section class="gradient-band compounding-grid relative overflow-hidden">
+<!-- <section class="gradient-band compounding-grid relative overflow-hidden">
   <div class="relative max-w-5xl mx-auto px-6 lg:px-10 py-24 text-center">
     <div class="eyebrow mb-4" style="color:#e8dcf9;">Ship memory in an afternoon</div>
     <h2 class="headline text-4xl sm:text-6xl text-white mb-6 max-w-4xl mx-auto">
@@ -962,7 +954,7 @@
       <span>go get github.com/xtrace-ai/xmem-go</span>
     </div>
   </div>
-</section>
+</section> -->
 
 <!-- ─────────────── FOOTER ─────────────── -->
 <footer class="bg-ink-900 text-ink-400 pt-16 pb-10">
