@@ -85,6 +85,21 @@
   details[open] .faq-icon { transform: rotate(45deg); }
   .faq-icon { transition: transform 0.2s ease; }
 
+  /* Comparison table */
+  .compare-table { min-width: 760px; }
+  .compare-table th, .compare-table td { vertical-align: top; }
+  .compare-table .compare-dim { width: 18%; min-width: 160px; }
+  .compare-table .compare-col-vdb, .compare-table .compare-col-xmem { width: 41%; }
+  .compare-cell { display: flex; gap: 0.75rem; align-items: flex-start; }
+  .compare-icon {
+    flex-shrink: 0; width: 1.4rem; height: 1.4rem; border-radius: 999px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.75rem; line-height: 1;
+    margin-top: 0.1rem;
+  }
+  .compare-icon-x     { background: #fbe5ea; color: #b85c6f; }
+  .compare-icon-check { background: #ebe3f6; color: #6B3FA0; }
+
   /* Nav dropdown — Pinecone-style */
   .nav-dropdown { display: none; position: absolute; top: 100%; left: 0; padding-top: 0.5rem; z-index: 60; }
   .nav-item:hover .nav-dropdown,
@@ -282,8 +297,6 @@
         <div class="code-shell">
           <div class="code-tabs">
             <button class="code-tab active" onclick="switchTab(event,'hero-py')">python</button>
-            <button class="code-tab" onclick="switchTab(event,'hero-ts')">typescript</button>
-            <button class="code-tab" onclick="switchTab(event,'hero-go')">go</button>
           </div>
           <div class="code-body">
             <div class="code-pane active" id="hero-py"><pre><span class="c-com"># Drop-in memory. Three calls.</span>
@@ -308,50 +321,6 @@
 
 <span class="c-com"># 3. inject into your LLM call</span>
 <span class="c-var">llm</span>.<span class="c-fn">complete</span>(<span class="c-var">system</span>=<span class="c-var">ctx</span>.<span class="c-var">prompt</span>, ...)</pre></div>
-            <div class="code-pane" id="hero-ts"><pre><span class="c-com">// Drop-in memory. Three calls.</span>
-<span class="c-kw">import</span> { <span class="c-var">XMem</span> } <span class="c-kw">from</span> <span class="c-str">"xmem"</span>;
-
-<span class="c-kw">const</span> <span class="c-var">mem</span> = <span class="c-kw">new</span> <span class="c-fn">XMem</span>({ <span class="c-var">apiKey</span>: <span class="c-str">"xm_..."</span> });
-
-<span class="c-com">// 1. write a fact (or an episode)</span>
-<span class="c-kw">await</span> <span class="c-var">mem</span>.<span class="c-fn">write</span>({
-  <span class="c-var">agentId</span>: <span class="c-str">"support-bot"</span>,
-  <span class="c-var">userId</span>: <span class="c-str">"u_4713"</span>,
-  <span class="c-var">content</span>: <span class="c-str">"prefers email over SMS"</span>,
-  <span class="c-var">source</span>: <span class="c-str">"chat:2026-04-18"</span>,
-});
-
-<span class="c-com">// 2. recall, resolved + ranked</span>
-<span class="c-kw">const</span> <span class="c-var">ctx</span> = <span class="c-kw">await</span> <span class="c-var">mem</span>.<span class="c-fn">recall</span>({
-  <span class="c-var">agentId</span>: <span class="c-str">"support-bot"</span>,
-  <span class="c-var">userId</span>: <span class="c-str">"u_4713"</span>,
-  <span class="c-var">query</span>: <span class="c-str">"how should I reach them?"</span>,
-});
-
-<span class="c-com">// 3. inject into your LLM call</span>
-<span class="c-kw">await</span> <span class="c-var">llm</span>.<span class="c-fn">complete</span>({ <span class="c-var">system</span>: <span class="c-var">ctx</span>.<span class="c-var">prompt</span> });</pre></div>
-            <div class="code-pane" id="hero-go"><pre><span class="c-com">// Drop-in memory. Three calls.</span>
-<span class="c-kw">import</span> <span class="c-str">"github.com/xtrace-ai/xmem-go"</span>
-
-<span class="c-var">mem</span> := <span class="c-var">xmem</span>.<span class="c-fn">New</span>(<span class="c-str">"xm_..."</span>)
-
-<span class="c-com">// 1. write a fact (or an episode)</span>
-<span class="c-var">mem</span>.<span class="c-fn">Write</span>(<span class="c-var">ctx</span>, <span class="c-var">xmem</span>.<span class="c-var">Fact</span>{
-  <span class="c-var">AgentID</span>: <span class="c-str">"support-bot"</span>,
-  <span class="c-var">UserID</span>:  <span class="c-str">"u_4713"</span>,
-  <span class="c-var">Content</span>: <span class="c-str">"prefers email over SMS"</span>,
-  <span class="c-var">Source</span>:  <span class="c-str">"chat:2026-04-18"</span>,
-})
-
-<span class="c-com">// 2. recall, resolved + ranked</span>
-<span class="c-var">out</span>, _ := <span class="c-var">mem</span>.<span class="c-fn">Recall</span>(<span class="c-var">ctx</span>, <span class="c-var">xmem</span>.<span class="c-var">Query</span>{
-  <span class="c-var">AgentID</span>: <span class="c-str">"support-bot"</span>,
-  <span class="c-var">UserID</span>:  <span class="c-str">"u_4713"</span>,
-  <span class="c-var">Text</span>:    <span class="c-str">"how should I reach them?"</span>,
-})
-
-<span class="c-com">// 3. inject into your LLM call</span>
-<span class="c-var">llm</span>.<span class="c-fn">Complete</span>(<span class="c-var">out</span>.<span class="c-var">Prompt</span>)</pre></div>
           </div>
         </div>
        
@@ -361,7 +330,7 @@
 </section>
 
 <!-- ─────────────── TRUSTED BAR ─────────────── -->
-<section class="border-y border-ink-900/6 bg-white/70">
+<!-- <section class="border-y border-ink-900/6 bg-white/70">
   <div class="max-w-7xl mx-auto px-6 lg:px-10 py-5">
     <div class="flex flex-col md:flex-row items-center justify-between gap-4">
       <div class="text-xs font-medium uppercase tracking-wider text-ink-500">Used by AI agent teams building</div>
@@ -378,7 +347,7 @@
       </div>
     </div>
   </div>
-</section>
+</section> -->
 
 <!-- ─────────────── PROBLEM FOR DEVS ─────────────── -->
 <section class="py-24 lg:py-28">
@@ -478,29 +447,54 @@
       </p>
     </div>
 
-    <div class="grid md:grid-cols-2 gap-6">
-      <div class="card border-rose/30" style="background:#fff8f9;">
-        <div class="text-xs font-semibold uppercase tracking-wider text-rose mb-4">Vector DB + RAG</div>
-        <ul class="space-y-3 text-sm text-ink-700">
-          <li class="flex gap-3"><span class="text-rose font-bold">✕</span><span>Stores embeddings of strings. No notion of "true right now."</span></li>
-          <li class="flex gap-3"><span class="text-rose font-bold">✕</span><span>Contradictions coexist forever. Retrieval picks whichever scores higher.</span></li>
-          <li class="flex gap-3"><span class="text-rose font-bold">✕</span><span>No lineage. You can't answer <strong>why do you believe this?</strong></span></li>
-          <li class="flex gap-3"><span class="text-rose font-bold">✕</span><span>No decay. A fact from Jan 2024 ranks with a fact from yesterday.</span></li>
-          <li class="flex gap-3"><span class="text-rose font-bold">✕</span><span>No identity resolution. "Lisa" and "L. Chen" are strangers.</span></li>
-          <li class="flex gap-3"><span class="text-rose font-bold">✕</span><span>You'll end up writing a belief layer on top. We already did.</span></li>
-        </ul>
-      </div>
-      <div class="card border-plum-200" style="background:#fafaff;">
-        <div class="text-xs font-semibold uppercase tracking-wider text-plum-600 mb-4">XMem</div>
-        <ul class="space-y-3 text-sm text-ink-700">
-          <li class="flex gap-3"><span class="text-plum-600 font-bold">✓</span><span>Stores <strong>facts</strong> — structured beliefs with timestamps, sources, and confidence.</span></li>
-          <li class="flex gap-3"><span class="text-plum-600 font-bold">✓</span><span>Newer facts <strong>supersede</strong> older ones. Retractions are first-class.</span></li>
-          <li class="flex gap-3"><span class="text-plum-600 font-bold">✓</span><span>Every answer carries lineage. One call returns the fact + its provenance.</span></li>
-          <li class="flex gap-3"><span class="text-plum-600 font-bold">✓</span><span><strong>Decay curves</strong> per fact type. Preferences age differently than contracts.</span></li>
-          <li class="flex gap-3"><span class="text-plum-600 font-bold">✓</span><span>Entity resolution built in. "Lisa" = "L. Chen" = user:u_4713.</span></li>
-          <li class="flex gap-3"><span class="text-plum-600 font-bold">✓</span><span>One SDK call. Works alongside your existing vector DB — we don't replace it.</span></li>
-        </ul>
-      </div>
+    <div class="compare-wrap overflow-x-auto rounded-2xl border border-ink-900/8 shadow-sm" style="background: white;">
+      <table class="compare-table w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-paper-100 border-b border-ink-900/8">
+            <th scope="col" class="compare-dim p-4 md:p-5 text-xs font-semibold uppercase tracking-wider text-ink-500 align-bottom">Dimension</th>
+            <th scope="col" class="compare-col-vdb p-4 md:p-5 align-bottom">
+              <div class="text-xs font-semibold uppercase tracking-wider text-rose mb-1">Vector DB + RAG</div>
+              <div class="text-xs text-ink-500 font-normal normal-case">"what looks like this?"</div>
+            </th>
+            <th scope="col" class="compare-col-xmem p-4 md:p-5 align-bottom" style="background:#f5f1fa;">
+              <div class="text-xs font-semibold uppercase tracking-wider text-plum-600 mb-1">XMem</div>
+              <div class="text-xs text-ink-500 font-normal normal-case">"what's true right now?"</div>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="text-base text-ink-700">
+          <tr class="border-b border-ink-900/6">
+            <th scope="row" class="compare-dim p-4 md:p-5 align-top font-serif text-base font-medium text-ink-900">What it stores</th>
+            <td class="p-4 md:p-5 align-top"><div class="compare-cell"><span class="compare-icon compare-icon-x">✕</span><span>Embeddings of strings. No notion of "true right now."</span></div></td>
+            <td class="p-4 md:p-5 align-top" style="background:#fafaff;"><div class="compare-cell"><span class="compare-icon compare-icon-check">✓</span><span>Structured <strong>facts</strong> with timestamps, sources, and confidence.</span></div></td>
+          </tr>
+          <tr class="border-b border-ink-900/6 bg-paper-50/60">
+            <th scope="row" class="compare-dim p-4 md:p-5 align-top font-serif text-base font-medium text-ink-900">Conflicts</th>
+            <td class="p-4 md:p-5 align-top"><div class="compare-cell"><span class="compare-icon compare-icon-x">✕</span><span>Contradictions coexist forever. Retrieval picks whichever scores higher.</span></div></td>
+            <td class="p-4 md:p-5 align-top" style="background:#f5f1fa;"><div class="compare-cell"><span class="compare-icon compare-icon-check">✓</span><span>Newer facts <strong>supersede</strong> older ones. Retractions are first-class.</span></div></td>
+          </tr>
+          <tr class="border-b border-ink-900/6">
+            <th scope="row" class="compare-dim p-4 md:p-5 align-top font-serif text-base font-medium text-ink-900">Lineage</th>
+            <td class="p-4 md:p-5 align-top"><div class="compare-cell"><span class="compare-icon compare-icon-x">✕</span><span>None. You can't answer <strong>why do you believe this?</strong></span></div></td>
+            <td class="p-4 md:p-5 align-top" style="background:#fafaff;"><div class="compare-cell"><span class="compare-icon compare-icon-check">✓</span><span>Every answer carries lineage. One call returns the fact + its provenance.</span></div></td>
+          </tr>
+          <tr class="border-b border-ink-900/6 bg-paper-50/60">
+            <th scope="row" class="compare-dim p-4 md:p-5 align-top font-serif text-base font-medium text-ink-900">Time decay</th>
+            <td class="p-4 md:p-5 align-top"><div class="compare-cell"><span class="compare-icon compare-icon-x">✕</span><span>None. A fact from Jan 2024 ranks with a fact from yesterday.</span></div></td>
+            <td class="p-4 md:p-5 align-top" style="background:#f5f1fa;"><div class="compare-cell"><span class="compare-icon compare-icon-check">✓</span><span><strong>Decay curves</strong> per fact type. Preferences age differently than contracts.</span></div></td>
+          </tr>
+          <tr class="border-b border-ink-900/6">
+            <th scope="row" class="compare-dim p-4 md:p-5 align-top font-serif text-base font-medium text-ink-900">Identity</th>
+            <td class="p-4 md:p-5 align-top"><div class="compare-cell"><span class="compare-icon compare-icon-x">✕</span><span>"Lisa" and "L. Chen" are strangers.</span></div></td>
+            <td class="p-4 md:p-5 align-top" style="background:#fafaff;"><div class="compare-cell"><span class="compare-icon compare-icon-check">✓</span><span>Entity resolution built in. "Lisa" = "L. Chen" = user:u_4713.</span></div></td>
+          </tr>
+          <tr class="bg-paper-50/60">
+            <th scope="row" class="compare-dim p-4 md:p-5 align-top font-serif text-base font-medium text-ink-900">Integration</th>
+            <td class="p-4 md:p-5 align-top"><div class="compare-cell"><span class="compare-icon compare-icon-x">✕</span><span>You'll end up writing a belief layer on top.</span></div></td>
+            <td class="p-4 md:p-5 align-top" style="background:#f5f1fa;"><div class="compare-cell"><span class="compare-icon compare-icon-check">✓</span><span>One SDK call. Works alongside your existing vector DB — we don't replace it.</span></div></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <!-- <div class="mt-12 text-center">
