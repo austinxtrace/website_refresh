@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>News — XTrace in the press</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..800;1,6..72,300..800&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          plum: { 50:'#f5f1fa', 100:'#ebe3f6', 200:'#d4c0ed', 300:'#b596de', 400:'#946ccb', 500:'#7a4fbb', 600:'#6B3FA0', 700:'#573285', 800:'#482c6b', 900:'#3c2757' },
+          paper: { 50:'#fbfaf7', 100:'#f5f2eb', 200:'#ebe6d9' },
+          ink: { 900:'#1a1717', 800:'#2b2626', 700:'#3d3737', 600:'#554e4e', 500:'#7a7272', 400:'#a39b9b', 300:'#cfc8c8' },
+          amber: '#d98f3e', moss: '#6b8f4e', rose: '#b85c6f', slate: '#5a6b7a'
+        },
+        fontFamily: {
+          serif: ['Newsreader', 'ui-serif', 'Georgia', 'serif'],
+          sans: ['Manrope', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+        },
+      }
+    }
+  }
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Manrope', sans-serif;
+    background: #fbfaf7;
+    color: #1a1717;
+    background-image:
+      radial-gradient(rgba(107,63,160,0.025) 1px, transparent 1px),
+      radial-gradient(rgba(107,63,160,0.02) 1px, transparent 1px);
+    background-size: 32px 32px, 16px 16px;
+    background-position: 0 0, 8px 8px;
+  }
+  .font-serif { font-family: 'Newsreader', serif; font-feature-settings: "ss01"; letter-spacing: -0.01em; }
+  .headline { font-family: 'Newsreader', serif; letter-spacing: -0.025em; line-height: 1.02; font-weight: 500; }
+  .eyebrow { font-family: 'Manrope', sans-serif; font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; font-size: 0.72rem; color: #6B3FA0; }
+  .btn-primary {
+    background: #6B3FA0; color: white; font-weight: 600;
+    padding: 0.85rem 1.5rem; border-radius: 0.6rem;
+    transition: all 0.18s ease; display: inline-flex; align-items: center; gap: 0.5rem;
+    box-shadow: 0 1px 2px rgba(72,44,107,0.15), 0 4px 12px rgba(107,63,160,0.18);
+  }
+  .btn-primary:hover { background: #573285; transform: translateY(-1px); box-shadow: 0 2px 4px rgba(72,44,107,0.2), 0 8px 20px rgba(107,63,160,0.22); }
+  .btn-secondary {
+    background: white; color: #1a1717; font-weight: 600;
+    padding: 0.85rem 1.5rem; border-radius: 0.6rem;
+    border: 1.5px solid #d4c0ed;
+    transition: all 0.18s ease; display: inline-flex; align-items: center; gap: 0.5rem;
+  }
+  .btn-secondary:hover { border-color: #6B3FA0; color: #6B3FA0; }
+
+  /* Press cards */
+  .press-card {
+    background: white; border: 1px solid rgba(26,23,23,0.06);
+    border-radius: 0.9rem; padding: 1.5rem 1.6rem;
+    transition: all 0.2s ease; display: flex; flex-direction: column; gap: 0.6rem;
+    height: 100%;
+  }
+  .press-card:hover { border-color: rgba(107,63,160,0.25); transform: translateY(-2px); box-shadow: 0 10px 28px rgba(107,63,160,0.08); }
+  .press-outlet { font-family: 'Manrope', sans-serif; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; color: #6B3FA0; }
+  .press-date   { font-size: 0.72rem; color: #7a7272; font-family: 'JetBrains Mono', monospace; }
+  .press-title  { font-family: 'Newsreader', serif; font-size: 1.2rem; line-height: 1.25; color: #1a1717; font-weight: 500; }
+  .press-snippet { font-size: 0.9rem; color: #554e4e; line-height: 1.55; }
+  .press-link { margin-top: auto; display: inline-flex; align-items: center; gap: 0.35rem; font-weight: 600; font-size: 0.85rem; color: #6B3FA0; }
+  .press-card:hover .press-link { color: #482c6b; }
+
+  /* Featured */
+  .featured {
+    background: linear-gradient(135deg, #f5f1fa 0%, #ebe3f6 100%);
+    border: 1px solid #d4c0ed; border-radius: 1rem; padding: 2rem;
+    position: relative; overflow: hidden;
+  }
+  .featured::before {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(107,63,160,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(107,63,160,0.05) 1px, transparent 1px);
+    background-size: 32px 32px;
+    mask-image: radial-gradient(ellipse at top right, black 30%, transparent 75%);
+    pointer-events: none;
+  }
+  .featured > * { position: relative; }
+
+  /* Logo strip */
+  .outlet-strip { display: flex; flex-wrap: wrap; gap: 2.25rem 3rem; align-items: center; justify-content: center; }
+  .outlet-name {
+    font-family: 'Newsreader', serif;
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: #554e4e;
+    letter-spacing: -0.01em;
+    transition: color 0.2s ease;
+  }
+  .outlet-name:hover { color: #1a1717; }
+
+  /* Podcast cards */
+  .pod-card {
+    background: white; border: 1px solid rgba(26,23,23,0.06);
+    border-radius: 0.9rem; padding: 1.4rem;
+    display: flex; gap: 1rem; align-items: flex-start;
+    transition: all 0.2s ease;
+  }
+  .pod-card:hover { border-color: rgba(107,63,160,0.25); box-shadow: 0 8px 24px rgba(107,63,160,0.06); }
+  .pod-art {
+    flex-shrink: 0; width: 4rem; height: 4rem; border-radius: 0.6rem;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #946ccb 0%, #482c6b 100%);
+    color: white;
+  }
+
+  /* Logo dot reused in footer */
+  .logo-dot { display: inline-flex; width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, #946ccb 0%, #573285 100%); align-items: center; justify-content: center; color: white; font-family: 'Newsreader', serif; font-weight: 700; font-size: 1rem; }
+
+  /* Nav dropdown — Pinecone-style */
+  .nav-dropdown { display: none; position: absolute; top: 100%; left: 0; padding-top: 0.5rem; z-index: 60; }
+  .nav-item:hover .nav-dropdown,
+  .nav-item:focus-within .nav-dropdown,
+  .nav-item.open .nav-dropdown { display: block; }
+  .nav-card { background: white; border: 1px solid rgba(26,23,23,0.08); border-radius: 14px; padding: 0.5rem; width: 640px; box-shadow: 0 10px 30px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04); display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .nav-card-row { display: flex; gap: 0.9rem; align-items: flex-start; padding: 0.9rem; border-radius: 10px; transition: background 0.15s ease; }
+  .nav-card-row:hover { background: #f5f1fa; }
+  .nav-card-title { font-weight: 700; color: #1a1717; font-size: 0.95rem; margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.4rem; }
+  .nav-card-desc { color: #554e4e; font-size: 0.82rem; line-height: 1.4; }
+  .nav-arrow { opacity: 0; transition: all 0.15s ease; }
+  .nav-card-row:hover .nav-arrow { opacity: 1; transform: translateX(2px); }
+</style>
+</head>
+<body class="antialiased">
+
+<!-- ─────────────── NAV ─────────────── -->
+<nav class="sticky top-0 z-50 bg-paper-50/85 backdrop-blur-md border-b border-ink-900/6">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10 h-16 flex items-center justify-between">
+    <a href="index.html" class="flex items-center">
+      <img src="Gradient Logo on Light Backgrounds.png" alt="XTrace" class="h-10 w-auto">
+    </a>
+    <div class="hidden md:flex items-center gap-8 text-sm font-medium text-ink-700">
+      <a href="index.html#research" class="hover:text-plum-600 transition">Research</a>
+
+      <div class="nav-item relative">
+        <button class="flex items-center gap-1 hover:text-plum-600 transition py-5">Product
+          <svg class="w-3 h-3" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="nav-dropdown">
+          <div class="nav-card">
+            <a href="index.html#memory-hub" class="nav-card-row">
+              <div>
+                <div class="nav-card-title">
+                  Memory Hub
+                  <svg class="w-3 h-3 nav-arrow" viewBox="0 0 12 12" fill="none"><path d="M4 2L8 6L4 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="nav-card-desc">A living brain for your team. Capture across every AI tool, resolve conflicts, serve to any teammate or agent.</div>
+              </div>
+            </a>
+            <a href="xmem.html" class="nav-card-row">
+              <div>
+                <div class="nav-card-title">
+                  X-Mem
+                  <svg class="w-3 h-3 nav-arrow" viewBox="0 0 12 12" fill="none"><path d="M4 2L8 6L4 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="nav-card-desc">Memory API for agent builders. Belief revision as a drop-in SDK. 92.3% on LongMemEval.</div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-item relative">
+        <button class="flex items-center gap-1 text-plum-600 transition py-5">Resources
+          <svg class="w-3 h-3" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="nav-dropdown">
+          <div class="nav-card" style="width: 320px; grid-template-columns: 1fr;">
+            <a href="index.html#blog" class="nav-card-row">
+              <div>
+                <div class="nav-card-title">
+                  Blog
+                  <svg class="w-3 h-3 nav-arrow" viewBox="0 0 12 12" fill="none"><path d="M4 2L8 6L4 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="nav-card-desc">Research notes, engineering deep-dives, and product updates.</div>
+              </div>
+            </a>
+            <a href="index.html#docs" class="nav-card-row">
+              <div>
+                <div class="nav-card-title">
+                  Docs
+                  <svg class="w-3 h-3 nav-arrow" viewBox="0 0 12 12" fill="none"><path d="M4 2L8 6L4 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="nav-card-desc">Integration guides, SDK references, and API specs.</div>
+              </div>
+            </a>
+            <a href="news.html" class="nav-card-row" style="background:#f5f1fa;">
+              <div>
+                <div class="nav-card-title">
+                  News
+                  <svg class="w-3 h-3 nav-arrow" viewBox="0 0 12 12" fill="none"><path d="M4 2L8 6L4 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="nav-card-desc">Press coverage, interviews, and announcements.</div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+      <a href="index.html#pricing" class="hover:text-plum-600 transition">Pricing</a>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="index.html#signin" class="hidden sm:inline text-sm font-medium text-ink-700 hover:text-plum-600 transition">Sign in</a>
+      <a href="index.html#signup" class="btn-primary text-sm" style="padding: 0.55rem 1.1rem;">Start free</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ─────────────── HERO ─────────────── -->
+<section class="border-b border-ink-900/6">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10 pt-20 pb-12 lg:pt-24 lg:pb-16">
+    <div class="max-w-3xl">
+      <div class="eyebrow mb-4">Press &amp; Coverage</div>
+      <h1 class="headline text-5xl sm:text-6xl text-ink-900 mb-6">XTrace in the news.</h1>
+      <p class="text-lg text-ink-700 leading-relaxed">
+        Coverage, interviews, and analysis from journalists, podcasters, and analysts shaping how the world thinks about AI memory. We're proud to share what they've written and said about us.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── AS FEATURED IN ─────────────── -->
+<section class="py-12 lg:py-14 bg-white/60 border-b border-ink-900/6">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="text-center mb-8">
+      <div class="eyebrow" style="color:#7a7272;">As featured in</div>
+    </div>
+    <div class="outlet-strip">
+      <a href="https://venturebeat.com/business/ai-remembers-who-you-are-xtrace-remembers-what-you-built" target="_blank" rel="noopener" class="outlet-name">VentureBeat</a>
+      <a href="https://www.digitaljournal.com/tech-science/the-next-ai-advantage-is-shared-intelligence-not-better-prompts/article" target="_blank" rel="noopener" class="outlet-name">Digital Journal</a>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── FEATURED STORY ─────────────── -->
+<section class="py-16 lg:py-20">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="eyebrow mb-6">Featured</div>
+    <div class="featured grid lg:grid-cols-12 gap-8 items-start">
+      <div class="lg:col-span-8">
+        <div class="press-outlet mb-3">VentureBeat · Business</div>
+        <h2 class="headline text-3xl sm:text-4xl text-ink-900 mb-4">
+          "AI remembers who you are. XTrace remembers what you built."
+        </h2>
+        <p class="text-base text-ink-700 leading-relaxed mb-6 max-w-2xl">
+          A deep look at why personal AI memory falls short for teams — and how XTrace's belief-revision engine captures the institutional context (decisions, ownership, supersede chains) that most tools throw away.
+        </p>
+        <a href="https://venturebeat.com/business/ai-remembers-who-you-are-xtrace-remembers-what-you-built" target="_blank" rel="noopener" class="btn-primary">Read on VentureBeat
+          <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none"><path d="M3 8H13M13 8L8 3M13 8L8 13" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+      <div class="lg:col-span-4 flex flex-col gap-4 text-sm text-ink-700">
+        <div>
+          <div class="press-outlet mb-1">Outlet</div>
+          <div class="font-semibold text-ink-900">VentureBeat</div>
+          <div class="text-ink-500">Business · Enterprise AI</div>
+        </div>
+        <div>
+          <div class="press-outlet mb-1">Highlight</div>
+          <blockquote class="font-serif italic text-ink-800 leading-snug">"AI remembers who you are. XTrace remembers what you built."</blockquote>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── ARTICLES GRID ─────────────── -->
+<section class="py-12 lg:py-14">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="mb-10">
+      <div class="eyebrow mb-3">More coverage</div>
+      <h2 class="headline text-3xl sm:text-4xl text-ink-900">In the press.</h2>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-5">
+
+      <a href="https://www.digitaljournal.com/tech-science/the-next-ai-advantage-is-shared-intelligence-not-better-prompts/article" target="_blank" rel="noopener" class="press-card">
+        <div class="flex items-center justify-between gap-3">
+          <span class="press-outlet">Digital Journal</span>
+          <span class="press-date">tech-science</span>
+        </div>
+        <h3 class="press-title">"The next AI advantage is shared intelligence, not better prompts."</h3>
+        <p class="press-snippet">Why prompt engineering hits a ceiling without shared organizational memory — and how XTrace turns institutional knowledge into the real moat for AI-native teams.</p>
+        <span class="press-link">Read on Digital Journal →</span>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── PRESS CONTACT ─────────────── -->
+<section id="press-kit" class="py-16 lg:py-20">
+  <div class="max-w-3xl mx-auto px-6 lg:px-10 text-center">
+    <div class="eyebrow mb-3">For journalists</div>
+    <h2 class="headline text-3xl sm:text-4xl text-ink-900 mb-4">Writing about XTrace?</h2>
+    <p class="text-base text-ink-700 leading-relaxed mb-5">Need a quote, more context, or a quick interview? Reach out to our communications team.</p>
+    <a href="mailto:press@xtrace.ai" class="text-lg font-semibold text-plum-700 hover:text-plum-900 transition">press@xtrace.ai</a>
+  </div>
+</section>
+
+<!-- ─────────────── FOOTER ─────────────── -->
+<footer class="bg-ink-900 text-ink-400 pt-16 pb-10">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-10 pb-12 border-b border-white/8">
+      <div>
+        <div class="eyebrow mb-4" style="color:#946ccb;">Product</div>
+        <ul class="space-y-2.5 text-sm">
+          <li><a href="index.html#memory-hub" class="hover:text-white transition">Memory Hub</a></li>
+          <li><a href="index.html#pricing" class="hover:text-white transition">Pricing</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="eyebrow mb-4" style="color:#946ccb;">Developers</div>
+        <ul class="space-y-2.5 text-sm">
+          <li><a href="xmem.html" class="hover:text-white transition">X-Mem</a></li>
+          <li><a href="#" class="hover:text-white transition">Docs</a></li>
+          <li><a href="#" class="hover:text-white transition">API reference</a></li>
+          <li><a href="#" class="hover:text-white transition">SDKs</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="eyebrow mb-4" style="color:#946ccb;">Company</div>
+        <ul class="space-y-2.5 text-sm">
+          <li><a href="#" class="hover:text-white transition">About</a></li>
+          <li><a href="#" class="hover:text-white transition">Research</a></li>
+          <li><a href="#" class="hover:text-white transition">Careers</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="eyebrow mb-4" style="color:#946ccb;">Resources</div>
+        <ul class="space-y-2.5 text-sm">
+          <li><a href="#" class="hover:text-white transition">Blog</a></li>
+          <li><a href="news.html" class="hover:text-white transition">News</a></li>
+          <li><a href="#" class="hover:text-white transition">Changelog</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="pt-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+      <div class="flex items-center gap-3">
+        <span class="logo-dot" style="background: linear-gradient(135deg, #946ccb 0%, #482c6b 100%);">X</span>
+        <span class="font-serif text-lg text-white">XTrace</span>
+        <span class="text-ink-500 text-sm hidden sm:inline">· Memory you own.</span>
+      </div>
+      <div class="flex items-center gap-6 text-xs text-ink-500">
+        <span>© 2026 XTrace</span>
+        <a href="#" class="hover:text-white">Privacy</a>
+        <a href="#" class="hover:text-white">Terms</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll('.nav-item').forEach(item => {
+    const btn = item.querySelector('button');
+    if (!btn) return;
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      document.querySelectorAll('.nav-item.open').forEach(o => { if (o !== item) o.classList.remove('open'); });
+      item.classList.toggle('open');
+    });
+  });
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.nav-item')) {
+      document.querySelectorAll('.nav-item.open').forEach(o => o.classList.remove('open'));
+    }
+  });
+</script>
+
+</body>
+</html>
